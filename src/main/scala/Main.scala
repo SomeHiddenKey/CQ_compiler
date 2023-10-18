@@ -12,13 +12,12 @@ import org.apache.arrow.vector.ipc.ArrowReader
 
 import java.io.File
 
-var filenames : Vector[String] = Vector("beers", "breweries", "categories", "locations", "styles")
 var options : ScanOptions = new ScanOptions(/*batchSize*/ 32768)
 
 @main private def main() : Unit =
-  val files = listFilesInDirectory(System.getProperty("user.dir") + s"/project/data/")
+  val files = listFilesInDirectory(System.getProperty("user.dir") + s"/data/")
   for (file <- files)
-    read("file:///" + System.getProperty("user.dir") + s"/project/data/$file")
+    read("file:///" + System.getProperty("user.dir") + s"/data/$file")
 
 
 private def read(uri: String) : Unit =
