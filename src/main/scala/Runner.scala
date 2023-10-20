@@ -15,27 +15,42 @@ import java.io.File
 object Runner {
   var options : ScanOptions = new ScanOptions(/*batchSize*/ 32768)
 
+  var loaded_datasets : Map[String, Dataset] = Map()
+
   @main def start(): Unit =
     println("file:///" + System.getProperty("user.dir").replace(" ", "%20"))
     val files = listFilesInDirectory(System.getProperty("user.dir") + s"/data/")
     for (file <- files)
-      read("file:///" + System.getProperty("user.dir").replace(" ", "%20") + "/data/" + file)
+      read("file:///" + System.getProperty("user.dir").replace(" ", "%20") + "/data/", file)
 
-  private def read(uri: String): Unit =
+    given l : Map[String, Dataset] = loaded_datasets
+    val a : Atom = QueryParser("locations(waaa, 12, Trouble)")
+    println("--new atom--")
+    println("dataset: " + a.dataset)
+    a.terms.foreach {
+      case c: Constant[_] => c.value match
+        case v: Int => println("cte (int) : " + c.value)
+        case v: String => println("cte (string) : " + c.value)
+      case c: Variable => println("var: " + c.name)
+    }
+
+  private def read(uri: String, file_name : String): Unit =
     try {
       val allocator: BufferAllocator = new RootAllocator()
-      val datasetFactory: DatasetFactory = new FileSystemDatasetFactory(allocator, NativeMemoryPool.getDefault, FileFormat.CSV, uri)
+      val datasetFactory: DatasetFactory = new FileSystemDatasetFactory(allocator, NativeMemoryPool.getDefault, FileFormat.CSV, uri+file_name)
       val dataset: Dataset = datasetFactory.finish()
+      loaded_datasets += file_name.split("\\.").head -> dataset
       val scanner: Scanner = dataset.newScan(options)
       val reader: ArrowReader = scanner.scanBatches()
       var totalBatchSize: Int = 0
-      while reader.loadNextBatch() do {
-        val root: VectorSchemaRoot = reader.getVectorSchemaRoot
-        totalBatchSize += root.getRowCount
-        println(root.contentToTSVString())
-      }
-
-      println("Total batch size: " + totalBatchSize)
+//      while reader.loadNextBatch() do {
+//        val root: VectorSchemaRoot = reader.getVectorSchemaRoot
+//        totalBatchSize += root.getRowCount
+//        println(root.contentToTSVString())
+//      }
+//
+      println("Loaded: " + file_name)
+//      println("Total batch size: " + totalBatchSize)
     }
     catch case e: Exception => e.printStackTrace()
 

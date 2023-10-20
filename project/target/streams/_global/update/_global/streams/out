@@ -1,3 +1,5 @@
 [debug] not up to date. inChanged = true, force = false
-[debug] Updating ProjectRef(uri("file:/C:/Users/cedri/Documenten/code/CQ_compiler/project/"), "cq_compiler-build")...
-[debug] Done updating ProjectRef(uri("file:/C:/Users/cedri/Documenten/code/CQ_compiler/project/"), "cq_compiler-build")
+[debug] Updating ProjectRef(uri("file:/C:/Users/Tim%20A/IdeaProjects/CQ_compiler_last_attempt/project/"), "cq_compiler_last_attempt-build")...
+[warn] Unrecognized repository Scala Plugin Bundled Repository, ignoring it
+[warn] Unrecognized repository Scala Plugin Bundled Repository, ignoring it
+[debug] Done updating ProjectRef(uri("file:/C:/Users/Tim%20A/IdeaProjects/CQ_compiler_last_attempt/project/"), "cq_compiler_last_attempt-build")
