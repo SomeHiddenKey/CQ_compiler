@@ -1,10 +1,10 @@
 ThisBuild / version := "0.1.0-SNAPSHOT"
 
-ThisBuild / scalaVersion := "3.1.3"
+ThisBuild / scalaVersion := "3.3.1"
 
 lazy val root = (project in file("."))
   .settings(
-    name := "CQ_compiler_last_attempt",
+    name := "CQ_compiler",
     libraryDependencies ++= Seq(
       "org.apache.arrow" % "arrow-vector" % "13.0.0",
       "org.apache.arrow" % "arrow-memory" % "13.0.0",
