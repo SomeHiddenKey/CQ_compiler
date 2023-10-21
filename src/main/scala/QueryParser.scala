@@ -9,7 +9,7 @@ object QueryParser extends RegexParsers {
 
   private def body: Parser[List[term]] = rep1sep(wordConstant | floatConstant | numberConstant | variable, ", ") ^^ (c => c)
   private def wordConstant: Parser[term]   = """[a-z][a-zA-Z]*""".r ^^ (c => Constant[String](c))
-  private def floatConstant: Parser[term] = """-?\d+\.\d*[1-9]|\.\d*[1-9]|\d+\.\d*[1-9]""".r ^^ { c => Constant[Float](c.toFloat) }
+  private def floatConstant: Parser[term] = """-?\d+\.\d*[1-9]|\.\d*[1-9]|\d+\.\d*[1-9]""".r ^^ (c => Constant[Float](c.toFloat))
   private def numberConstant: Parser[term] = """(0|[1-9]\d*)""".r ^^ (c => Constant[Int](c.toInt))
   private def variable: Parser[term] = """[A-Z][a-zA-Z]*""".r ^^ (c => Variable(c))
   private def relation(using loaded_datasets : Map[String, Dataset]): Parser[Atom] =
