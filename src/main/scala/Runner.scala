@@ -30,6 +30,7 @@ object Runner {
       case c: Constant[_] => c.value match
         case v: Int => println("cte (int) : " + c.value)
         case v: String => println("cte (string) : " + c.value)
+        case v: Float => println("cte (float) : " + c.value)
       case c: Variable => println("var: " + c.name)
     }
     val b: Atom = QueryParser("locations(Trouble, waaa, 12)")
