@@ -18,7 +18,7 @@ object QueryParser extends RegexParsers {
     ("""[a-z][a-zA-Z]+""".r ~ "(" ~ body ~ ")") ^^ {
       case head_name ~ sl ~ b ~ sr =>
         loaded_datasets.get(head_name) match
-          case Some(ds) => new Atom(b, ds)
+          case Some(ds) => new Atom(b.toSet, ds)
           case None => throw new Exception(f"dataset \"$head_name\" not found")
     }
 }

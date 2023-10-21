@@ -33,6 +33,11 @@ object Runner {
         case v: String => println("cte (string) : " + c.value)
       case c: Variable => println("var: " + c.name)
     }
+    val b: Atom = QueryParser("locations(Trouble, waaa, 12)")
+    val c: Atom = QueryParser("locations(12, Trouble)")
+    println(a.terms == b.terms)
+    println(c.terms.subsetOf(b.terms))
+    println(c.terms == a.terms)
 
   private def read(uri: String, file_name : String): Unit =
     try {
