@@ -16,7 +16,7 @@ object Runner {
 
   var loaded_datasets : Map[String, Dataset] = Map()
 
-  @main def start(): Unit =
+ /* @main def start(): Unit =
     println("file:///" + System.getProperty("user.dir").replace(" ", "%20"))
     val files = listFilesInDirectory(System.getProperty("user.dir") + s"/data/")
     for (file <- files)
@@ -32,7 +32,7 @@ object Runner {
         case v: String => println("cte (string) : " + c.value)
         case v: Float => println("cte (float) : " + c.value)
       case c: Variable => println("var: " + c.name)
-    }
+    }*/
 
   private def read(uri: String, file_name : String): Unit =
     try {

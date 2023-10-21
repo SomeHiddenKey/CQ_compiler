@@ -1,4 +1,4 @@
-import org.apache.arrow.dataset.source.Dataset
+/*import org.apache.arrow.dataset.source.Dataset
 import org.apache.arrow.flatbuf
 
 type apacheType = flatbuf.Int | flatbuf.Utf8 | flatbuf.FloatingPoint
@@ -8,10 +8,10 @@ class Atom(val terms: List[Term], val dataset : Dataset)
 
 case class Constant[T <: Any](value : T) extends Term
 case class Variable(name : String) extends Term
-
+*/
 //import org.apache.arrow.flatbuf.{Int, Utf8, FloatingPoint}
 //type apacheType = Int | Utf8 | FloatingPoint
-/*type apacheType = Int | String | Float
+type apacheType = Int | String | Float
 trait Term
 class Atom(val relationName : String, val terms : List[Term]):
   var uniqueTerms: Set[Term] = terms.filter {
@@ -47,4 +47,4 @@ def query : ConjunctiveQuery = new ConjunctiveQuery(head, body)
   println(query)
   query.body.atoms.foreach(element => {
     println(element.uniqueTerms)
-  })*/
+  })
