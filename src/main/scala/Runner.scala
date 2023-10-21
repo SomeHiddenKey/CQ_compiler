@@ -7,7 +7,6 @@ import org.apache.arrow.dataset.source.Dataset
 import org.apache.arrow.dataset.source.DatasetFactory
 import org.apache.arrow.memory.BufferAllocator
 import org.apache.arrow.memory.RootAllocator
-import org.apache.arrow.vector.VectorSchemaRoot
 import org.apache.arrow.vector.ipc.ArrowReader
 
 import java.io.File
