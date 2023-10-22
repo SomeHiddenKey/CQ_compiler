@@ -23,17 +23,18 @@ object QueryParser extends RegexParsers {
 import scala.util.parsing.combinator.*
 
 object QueryParser extends JavaTokenParsers {
-  private def atomParser: Parser[Atom] = relationNameParser ~ termParser <~ ")" ^^ {
-    case relationName ~ terms => new Atom(relationName, terms)
+  private def atomParser: Parser[Atom] = relationNameParser ~ "(" ~ termParser ~ ")" ^^ {
+    case relationName ~ lb ~ terms ~ rb =>
+      new Atom(relationName, terms)
   }
-  private def relationNameParser: Parser[String] = """[A-Z][a-zA-Z]*\(""".r
+  private def relationNameParser: Parser[String] = """[A-Z][a-zA-Z]*""".r
   private def termParser: Parser[List[Term]] = rep1sep( parseTermInt | parseTermUtf8 | parseTermFloat | parseVariable, ",")
   private def parseTermInt: Parser[Term] = """(0|[1-9]\d*)""".r ^^ (c => Constant[Int](c.toInt))
   private def parseTermUtf8: Parser[Term] = """[a-z][a-zA-Z]*""".r ^^ (c => Constant[String](c))
   private def parseTermFloat: Parser[Term] = """-?\d+\.\d*[1-9]|\.\d*[1-9]|\d+\.\d*[1-9]""".r ^^ (c => Constant[Float](c.toFloat))
   private def parseVariable: Parser[Variable] = """[A-Z][a-zA-Z]*""".r ^^ (c => Variable(c))
   private def headParser: Parser[Head] = atomParser <~ """,?""".r <~ ":-" ^^ (atom => new Head(atom.relationName, atom.terms))
-  private def bodyParser: Parser[Body] = rep1sep(atomParser, ",") ^^ (atoms => Body(atoms.toSet))
+  private def bodyParser: Parser[Body] = rep1sep(atomParser, ",") <~ "." ^^ (atoms => Body(atoms.toSet))
 
   private def parseQuery: Parser[ConjunctiveQuery] = headParser ~ bodyParser ^^ {
     case head ~ body => ConjunctiveQuery(head, body)
@@ -46,7 +47,7 @@ object QueryParser extends JavaTokenParsers {
   }
 
   def main(args: Array[String]): Unit = {
-    val input = "Answer(z) :- Beers(Orval, 1, y), Location(1, 65, Hier)"
+    val input = "Answer(z) :- Beers(Orval, 1, y), Location(1, 65, Hier)."
     val result = parseAll(parseQuery, input)
 
     result match {
