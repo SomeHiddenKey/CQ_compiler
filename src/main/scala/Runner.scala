@@ -16,23 +16,15 @@ object Runner {
 
   var loaded_datasets : Map[String, Dataset] = Map()
 
- /* @main def start(): Unit =
+  @main def start(): Unit =
     println("file:///" + System.getProperty("user.dir").replace(" ", "%20"))
     val files = listFilesInDirectory(System.getProperty("user.dir") + s"/data/")
     for (file <- files)
       read("file:///" + System.getProperty("user.dir").replace(" ", "%20") + "/data/", file)
 
-    given l : Map[String, Dataset] = loaded_datasets
-    val a : Atom = QueryParser("locations(waaa, 12, Trouble)")
-    println("--new atom--")
-  //  println("dataset: " + a.dataset)
-    a.terms.foreach {
-      case c: Constant[_] => c.value match
-        case v: Int => println("cte (int) : " + c.value)
-        case v: String => println("cte (string) : " + c.value)
-        case v: Float => println("cte (float) : " + c.value)
-      case c: Variable => println("var: " + c.name)
-    }*/
+    val q: QueryParser = QueryParser(loaded_datasets)
+    val cq : ConjunctiveQuery = q("Answer(z, 5) :- Beers(Orval, 1.4, y), Location(1, 65, Hier).")
+    println(cq.body.size)
 
   private def read(uri: String, file_name : String): Unit =
     try {
