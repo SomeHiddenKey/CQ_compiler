@@ -29,10 +29,6 @@ class Atom(val relationName : String, val terms : List[Term], val dataset : Opti
 case class Constant[T <: apacheType](value : T) extends Term
 case class Variable(name: String) extends Term
 class Head(relationName: String, terms: List[Term]) extends Atom(relationName, terms)
-class ConjunctiveQuery(val head : Head,  val body : Set[Atom]):
-  override def toString : String =
-    val bodyString : String = body.mkString(", ")
-    s"$head :- $bodyString."
 
 def head : Head = Head("Answer", List(Variable("x")))
 def query : ConjunctiveQuery = new ConjunctiveQuery(head, Set(Atom("Beer", List(Constant(1), Variable("y"))), Atom("Location", List(Variable("y"), Variable("x")))))
