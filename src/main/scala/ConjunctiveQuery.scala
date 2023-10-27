@@ -11,8 +11,7 @@ class ConjunctiveQuery(val head : Head,  val body : Set[Atom]):
     var edgesToCheck = ListBuffer[uniqueTerm]()
 
     body.foreach {
-      atom =>
-        atom.uniqueTerms.variables.foreach {
+      atom => atom.uniqueTerms.variables.foreach {
           t =>
             nodeToEdge.update(t, nodeToEdge.getOrElse(t, ListBuffer[uniqueTerm]()) += atom.uniqueTerms)
             allTerms += atom.uniqueTerms
@@ -23,8 +22,15 @@ class ConjunctiveQuery(val head : Head,  val body : Set[Atom]):
 
     var changedSomething = true
 
+    edgesToCheck.foreach(e =>
+      if e.active && allTerms.exists((ne: uniqueTerm) => e != ne && e.subsetOf(ne) || e.variables.isEmpty) then
+        e.active = false
+        changedSomething = true
+    )
+
     while changedSomething do {
       changedSomething = false
+      edgesToCheck = edgesToCheck.empty
 
       //remove nodes that are alone
       nodeToEdge.filterInPlace((node , edge) => {
@@ -35,6 +41,7 @@ class ConjunctiveQuery(val head : Head,  val body : Set[Atom]):
         }) || {
           //println("removed " + node)
           edge.head.variables.filterInPlace(_ != node)
+          edgesToCheck.addAll(edge)
           edge.foreach(_.variables.filterInPlace(_ != node))
           changedSomething = true
           false
@@ -42,9 +49,8 @@ class ConjunctiveQuery(val head : Head,  val body : Set[Atom]):
       })
 
       edgesToCheck.foreach(e =>
-        if e.active && allTerms.exists((ne: uniqueTerm) => e != ne && (e.subsetOf(ne)) || e.variables.isEmpty) then
+        if e.active && allTerms.exists((ne: uniqueTerm) => e != ne && e.subsetOf(ne) || e.variables.isEmpty) then
           e.active = false
-          //println("inactive" + e.toString)
           changedSomething = true
       )
       //println("-----")
