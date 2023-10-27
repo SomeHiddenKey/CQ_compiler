@@ -26,8 +26,14 @@ object Runner {
     //val cq : ConjunctiveQuery = q("Answer(z, 5) :- Beers(A, B), Location(A, C).")
     val cq1 : ConjunctiveQuery = q("Answer(z, 5) :- Beers(A, B), Beers(B, C), Beers(C, A), Beers(A, B, C), Beers(A, Z).")
     println(cq1.checkAcyclic())
-    val cq2: ConjunctiveQuery = q("Answer(z, 5) :- Beers(A, B), Beers(B, C), Beers(C, A), Beers(A, Z).")
+    val cq2 : ConjunctiveQuery = q("Answer(z, 5) :- Beers(A, B), Beers(A, B, C), Beers(B, C), Beers(C, A), Beers(A, Z).")
     println(cq2.checkAcyclic())
+    val cq3: ConjunctiveQuery = q("Answer(z, 5) :- Beers(A, B), Beers(B, C), Beers(C, A), Beers(A, Z).")
+    println(cq3.checkAcyclic())
+    val cq4: ConjunctiveQuery = q("Answer(z, 5) :- Beers(A, B), Beers(A, B, C), Beers(B, C), Beers(A, B), Beers(C, A), Beers(A, Z).")
+    println(cq4.checkAcyclic())
+    val cq5: ConjunctiveQuery = q("Answer(z, 5) :- Beers(A, A, B, B), Beers(A, B, C, C), Beers(B, C), Beers(A, B), Beers(C, A), Beers(A, Z).")
+    println(cq5.checkAcyclic())
 
   private def read(uri: String, file_name : String): Unit =
     try {

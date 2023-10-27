@@ -7,8 +7,8 @@ class ConjunctiveQuery(val head : Head,  val body : Set[Atom]):
 
   def checkAcyclic(): Boolean =
     val nodeToEdge = collection.mutable.Map[String, ListBuffer[uniqueTerm]]()
-    val allTerms = ListBuffer[uniqueTerm]()
-    var edgesToCheck = ListBuffer[uniqueTerm]()
+    val allTerms = ListBuffer[uniqueTerm]() // all possible edges
+    var edgesToCheck = ListBuffer[uniqueTerm]() // list of edges to check of subsets - initial pass-through for all edges
 
     body.foreach {
       atom => atom.uniqueTerms.variables.foreach {
@@ -37,6 +37,7 @@ class ConjunctiveQuery(val head : Head,  val body : Set[Atom]):
         !(edge.size < 2 || {
           var edge_ptr = edge
           while edge_ptr.nonEmpty && !edge_ptr.head.active do edge_ptr = edge_ptr.tail
+          if edge_ptr.nonEmpty && edge != edge_ptr then nodeToEdge.update(node, edge_ptr)
           edge_ptr.isEmpty || edge_ptr.tail.forall(e => e.equals(edge_ptr.head) || !e.active)
         }) || {
           //println("removed " + node)
