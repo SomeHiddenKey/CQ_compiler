@@ -23,7 +23,8 @@ object Runner {
       read("file:///" + System.getProperty("user.dir").replace(" ", "%20") + "/data/", file)
 
     val q: QueryParser = QueryParser(loaded_datasets)
-    val cq : ConjunctiveQuery = q("Answer(z, 5) :- Beers(Orval, 1.4, y), Location(1, 65, Hier).")
+    //val cq : ConjunctiveQuery = q("Answer(z, 5) :- Beers(A, B), Location(A, C).")
+    val cq : ConjunctiveQuery = q("Answer(z, 5) :- Beers(A, B), Beers(B, C), Beers(C, A), Beers(A, B, C).")
     println(cq.checkAcyclic())
 
   private def read(uri: String, file_name : String): Unit =

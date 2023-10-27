@@ -1,6 +1,8 @@
 import org.apache.arrow.dataset.source.Dataset
 import org.apache.arrow.flatbuf
 
+import scala.annotation.targetName
+
 /*type apacheType = flatbuf.Int | flatbuf.Utf8 | flatbuf.FloatingPoint
 trait Term
 
@@ -13,10 +15,17 @@ case class Variable(name : String) extends Term
 type apacheType = Int | String | Float
 trait Term
 
+class uniqueTerm(val variables : scala.collection.mutable.Set[Variable], var active: Boolean = true){
+  def equals(value: uniqueTerm): Boolean = this.variables == value.variables
+
+  override def toString: String = "["+variables.toString+"=>"+active+"]"
+  def subsetOf(value: uniqueTerm): Boolean = this.variables.subsetOf(value.variables)
+}
+
 class Atom(val relationName : String, val terms : List[Term], val dataset : Option[Dataset] = None):
-  var uniqueTerms: Set[String] = terms.collect {
-    case v : Variable => v.name
-  }.toSet
+  var uniqueTerms: uniqueTerm = uniqueTerm(scala.collection.mutable.Set( terms.collect {
+    case v : Variable => v.copy()
+  } :_* ))
 
   override def toString: String =
     var string: String = ""
@@ -27,7 +36,10 @@ class Atom(val relationName : String, val terms : List[Term], val dataset : Opti
     s"$relationName($string)"
 
 case class Constant[T <: apacheType](value : T) extends Term
-case class Variable(name: String) extends Term
+case class Variable(name: String) extends Term {
+  @targetName("equals")
+  def ==(value : Variable): Boolean = this.name==value.name
+}
 class Head(relationName: String, terms: List[Term]) extends Atom(relationName, terms)
 
 def head : Head = Head("Answer", List(Variable("x")))
