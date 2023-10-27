@@ -36,10 +36,7 @@ class Atom(val relationName : String, val terms : List[Term], val dataset : Opti
     s"$relationName($string)"
 
 case class Constant[T <: apacheType](value : T) extends Term
-case class Variable(name: String) extends Term {
-  @targetName("equals")
-  def ==(value : Variable): Boolean = this.name==value.name
-}
+case class Variable(name: String) extends Term
 class Head(relationName: String, terms: List[Term]) extends Atom(relationName, terms)
 
 def head : Head = Head("Answer", List(Variable("x")))

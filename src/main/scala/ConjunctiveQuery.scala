@@ -34,8 +34,9 @@ class ConjunctiveQuery(val head : Head,  val body : Set[Atom]):
         !(edge.size < 2 || {
           var edge_ptr = edge
           while edge_ptr.nonEmpty && !edge_ptr.head.active do edge_ptr = edge_ptr.tail
-          edge_ptr.isEmpty || edge_ptr.tail.forall(e => e.active && e.equals(edge_ptr.head))
+          edge_ptr.isEmpty || edge_ptr.tail.forall(e => e.equals(edge_ptr.head) || !e.active)
         }) || {
+          println("removed " + node)
           edge.head.variables.filterInPlace(_ != node)
           edge.foreach(_.variables.filterInPlace(_ != node))
           changedSomething = true
@@ -45,8 +46,11 @@ class ConjunctiveQuery(val head : Head,  val body : Set[Atom]):
 
       edgesToCheck.foreach(e =>
         if e.active && allTerms.exists((ne: uniqueTerm) => e != ne && (e.subsetOf(ne)) || e.variables.isEmpty) then
-          e.active = false; changedSomething = true)
-      
+          e.active = false
+          println("inactive" + e.toString)
+          changedSomething = true
+      )
+      println("-----")
     }
-
+    println(nodeToEdge)
     nodeToEdge.isEmpty
