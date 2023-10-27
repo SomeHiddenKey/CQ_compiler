@@ -24,8 +24,10 @@ object Runner {
 
     val q: QueryParser = QueryParser(loaded_datasets)
     //val cq : ConjunctiveQuery = q("Answer(z, 5) :- Beers(A, B), Location(A, C).")
-    val cq : ConjunctiveQuery = q("Answer(z, 5) :- Beers(A, B), Beers(B, C), Beers(C, A), Beers(A, B, C), Beers(A, Z).")
-    println(cq.checkAcyclic())
+    val cq1 : ConjunctiveQuery = q("Answer(z, 5) :- Beers(A, B), Beers(B, C), Beers(C, A), Beers(A, B, C), Beers(A, Z).")
+    println(cq1.checkAcyclic())
+    val cq2: ConjunctiveQuery = q("Answer(z, 5) :- Beers(A, B), Beers(B, C), Beers(C, A), Beers(A, Z).")
+    println(cq2.checkAcyclic())
 
   private def read(uri: String, file_name : String): Unit =
     try {
