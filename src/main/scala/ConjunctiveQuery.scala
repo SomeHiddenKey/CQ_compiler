@@ -5,65 +5,72 @@ class ConjunctiveQuery(val head : Head,  val body : Set[Atom]):
     val bodyString : String = body.mkString(", ")
     s"$head :- $bodyString."
 
-  def checkAcyclic(): Boolean =
+  def getHyperGraph: Option[Hypergraph] =
     val nodeToEdge = collection.mutable.Map[String, ListBuffer[uniqueTerm]]()
-    var allTerms = ListBuffer[uniqueTerm]() // all possible edges
-    var edgesToCheck = ListBuffer[uniqueTerm]() // list of edges to check of subsets
+    val allTerms = collection.mutable.Set[uniqueTerm]() // all possible edges
+    val hypergraph : Hypergraph = new Hypergraph()
 
     body.foreach {
-      atom => atom.uniqueTerms.variables.foreach {
+      atom =>
+        val uniques = uniqueTerm(atom.uniqueTerms,new Node(atom))
+        uniques.variables.foreach {
           t =>
-            nodeToEdge.update(t, nodeToEdge.getOrElse(t, ListBuffer[uniqueTerm]()) += atom.uniqueTerms) //update pointermap from node -> all terms it relates to
-            allTerms += atom.uniqueTerms     // buildup all-edges list
-            edgesToCheck += atom.uniqueTerms // initial pass-through for all edges in algorithm, assuming everything is new
+            nodeToEdge.update(t, nodeToEdge.getOrElse(t, ListBuffer[uniqueTerm]()) += uniques) //update pointermap from node -> all terms it relates to
+            allTerms += uniques // buildup all-edges list
         }
     }
     println(nodeToEdge)
 
     var changedSomething = true
 
-    edgesToCheck.foreach(e =>
+    allTerms.foreach(e =>
       // initial check for all edges if they're s a subset of another node (omit being a subset of yourself)
-      if e.active && allTerms.exists((ne: uniqueTerm) => e != ne && e.subsetOf(ne) || e.variables.isEmpty) then
-        e.active = false
+      if e.active then
+        allTerms.collectFirst { case parentEdge if e.variables != parentEdge.variables && e.subsetOf(parentEdge) =>
+          hypergraph.nodes.add(e.node)
+          e.node.setParent(parentEdge.node)
+          e.active = false
+        }
     )
 
-    // loop as long as nodes and edges are being changed
     while changedSomething do {
       changedSomething = false
-      edgesToCheck = edgesToCheck.empty
 
-      //remove nodes that are alone
-      nodeToEdge.filterInPlace((node , edge) => {
-        // filter all edges with a size < 1 or where all active edges are the same => eliminates nodes that only belong to one edge
-        !(edge.size < 2 || {
-          var edge_ptr = edge
-          while edge_ptr.nonEmpty && !edge_ptr.head.active do edge_ptr = edge_ptr.tail //search for any active edge
-          if edge_ptr.nonEmpty && edge != edge_ptr then nodeToEdge.update(node, edge_ptr) //remove all non-active edges in map
-          edge_ptr.isEmpty || edge_ptr.tail.forall(e => e.equals(edge_ptr.head) || !e.active)
-        }) || {
-          //println("removed " + node)
-          edgesToCheck.addAll(edge)
-          edge.foreach(_.variables.filterInPlace(_ != node)) //removes variable in given edge(s) it relates to
-          changedSomething = true
+      //filter out all variables with only one referred edge
+      nodeToEdge.filterInPlace((node , edges) => {
+        var edge_actives = edges
+        edges.size > 1 && {
+          edge_actives = edges.filter(_.active) //filter out all inactive edges and count again
+          nodeToEdge.update(node, edge_actives)
+          edge_actives.size > 1
+        }
+        ||
+        {
+          // variable needs deleting
+          if edge_actives.nonEmpty then {
+            val cutEdge = edge_actives.head.variables.filter(v => nodeToEdge.getOrElse(v, ListBuffer()).count(_.active) > 1) //filter out any other variables only bound to one edge
+            if cutEdge.nonEmpty then {
+              allTerms.collectFirst {
+                case parentEdge if parentEdge.active && edge_actives.head.variables != parentEdge.variables && cutEdge.subsetOf(parentEdge.variables) =>
+                  //first parentEdge that fully contains cutEdge (so without the lone variables)
+                  hypergraph.nodes.add(edge_actives.head.node)
+                  //set parent-child relation for jointree
+                  edge_actives.head.node.setParent(parentEdge.node)
+                  //deactivate edge that we now consider as "removed"
+                  edge_actives.head.active = false
+                  changedSomething = true
+              }
+            } else {
+              //lone edge is a new root
+              hypergraph.nodes.add(edge_actives.head.node)
+              hypergraph.roots.add(edge_actives.head.node)
+              changedSomething = true
+            }
+          }
           false
         }
       })
-
-      val allActiveTerms = ListBuffer[uniqueTerm]()
-
-      edgesToCheck.foreach(e =>
-        if e.active then
-          //disable edges that have been updated to see if they're a subset of any other (active) edge
-          if allTerms.exists((ne: uniqueTerm) => e != ne && e.subsetOf(ne) || e.variables.isEmpty) then
-            e.active = false
-            changedSomething = true
-          else
-            // filter out inactive edges
-            allActiveTerms += e
-      )
-
-      allTerms = allActiveTerms
     }
-    //println(nodeToEdge)
-    nodeToEdge.isEmpty
+
+    //are there any nodes still attached to active edges -> if yes then acyclic
+    if nodeToEdge.isEmpty then Some(hypergraph) else None

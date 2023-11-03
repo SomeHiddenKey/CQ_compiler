@@ -15,17 +15,19 @@ case class Variable(name : String) extends Term
 type apacheType = Int | String | Float
 trait Term
 
-class uniqueTerm(val variables : scala.collection.mutable.Set[String], var active: Boolean = true){
+class uniqueTerm(val variables : scala.collection.mutable.Set[String], val node: Node){
+  var active: Boolean = true
   def equals(value: uniqueTerm): Boolean = this.variables == value.variables
 
   override def toString: String = "["+variables.toString+"=>"+active+"]"
   def subsetOf(value: uniqueTerm): Boolean = this.variables.subsetOf(value.variables)
+
 }
 
 class Atom(val relationName : String, val terms : List[Term], val dataset : Option[Dataset] = None):
-  var uniqueTerms: uniqueTerm = uniqueTerm(scala.collection.mutable.Set( terms.collect {
-    case v : Variable => v.name//v.copy()
-  } :_* ))
+  val uniqueTerms: scala.collection.mutable.Set[String] = scala.collection.mutable.Set( terms.collect {
+    case v : Variable => v.name
+  } :_* )
 
   override def toString: String =
     var string: String = ""

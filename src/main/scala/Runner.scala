@@ -23,17 +23,20 @@ object Runner {
       read("file:///" + System.getProperty("user.dir").replace(" ", "%20") + "/data/", file)
 
     val q: QueryParser = QueryParser(loaded_datasets)
-    //val cq : ConjunctiveQuery = q("Answer(z, 5) :- Beers(A, B), Location(A, C).")
+    val cq : ConjunctiveQuery = q("Answer(z, 5) :- Beers(A, B), Location(B, C).")
+    println(cq.getHyperGraph)
     val cq1 : ConjunctiveQuery = q("Answer(z, 5) :- Beers(A, B), Beers(B, C), Beers(C, A), Beers(A, B, C), Beers(A, Z).")
-    println(cq1.checkAcyclic())
-    val cq2 : ConjunctiveQuery = q("Answer(z, 5) :- Beers(A, B), Beers(A, B, C), Beers(B, C), Beers(C, A), Beers(A, Z).")
-    println(cq2.checkAcyclic())
+    println(cq1.getHyperGraph)
+    val cq2 : ConjunctiveQuery = q("Answer(z, 5) :- Beers(A, B), Beers(A, Z), Beers(A, B, C), Beers(B, C), Beers(C, A).")
+    println(cq2.getHyperGraph)
     val cq3: ConjunctiveQuery = q("Answer(z, 5) :- Beers(A, B), Beers(B, C), Beers(C, A), Beers(A, Z).")
-    println(cq3.checkAcyclic())
+    println(cq3.getHyperGraph)
     val cq4: ConjunctiveQuery = q("Answer(z, 5) :- Beers(A, B), Beers(A, B, C), Beers(B, C), Beers(A, B), Beers(C, A), Beers(A, Z).")
-    println(cq4.checkAcyclic())
+    println(cq4.getHyperGraph)
     val cq5: ConjunctiveQuery = q("Answer(z, 5) :- Beers(A, A, B, B), Beers(A, B, C, C), Beers(B, C), Beers(A, B), Beers(C, A), Beers(A, Z).")
-    println(cq5.checkAcyclic())
+    println(cq5.getHyperGraph)
+    val cq6 : ConjunctiveQuery = q("Answers(r) :- Beers(C), Beers(B).")
+    println(cq6.getHyperGraph)
 
   private def read(uri: String, file_name : String): Unit =
     try {
