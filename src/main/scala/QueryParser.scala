@@ -24,34 +24,34 @@ import scala.util.parsing.combinator.*
 
 class QueryParser(loaded_datasets : Map[String, Dataset]) extends RegexParsers {
   private def atomParser: Parser[Atom] = relationNameParser ~> "(" ~ termParser <~ ")" ^^ {
-    case head_name ~ b =>
-      new Atom(head_name, b, loaded_datasets.get(head_name))
+    case head_name ~ b => new Atom(head_name, b, loaded_datasets.get(head_name))
   }
-  private def relationNameParser: Parser[String] = """[A-Z][a-zA-Z]*""".r
-  private def termParser: Parser[List[Term]] = rep1sep( parseTermFloat | parseTermInt | parseTermUtf8 | parseVariable, ",")
-  private def parseTermInt: Parser[Term] = """0|([1-9]\d*)\b""".r ^^ (c => Constant[Int](c.toInt))
-  private def parseTermUtf8: Parser[Term] = """[a-z][a-zA-Z]*\b""".r ^^ (c => Constant[String](c))
-  private def parseTermFloat: Parser[Term] = """-?\d+\.\d*\b""".r ^^ (c => Constant[Float](c.toFloat))
-  private def parseVariable: Parser[Variable] = """[A-Z][a-zA-Z]*""".r ^^ (c => Variable(c))
-  private def headParser: Parser[Head] = atomParser <~ """,?""".r <~ ":-" ^^ (atom => new Head(atom.relationName, atom.terms))
-  private def bodyParser: Parser[Set[Atom]] = rep1sep(atomParser, ",") <~ "." ^^ (atoms => atoms.toSet)
-
-  private def parseQuery: Parser[ConjunctiveQuery] = headParser ~ bodyParser ^^ {
+  private def queryParser: Parser[ConjunctiveQuery] = headParser ~ bodyParser ^^ {
     case head ~ body => ConjunctiveQuery(head, body)
   }
+  private def relationNameParser: Parser[String] = """[A-Z][a-zA-Z]*""".r
+  private def termParser: Parser[List[Term]] = rep1sep( parseTermFloat | parseTermInt | parseTermString | parseVariable, ",")
+  private def parseTermInt: Parser[Term] = """0|(-?[1-9]\d*)\b""".r ^^ (c => Constant[Int](c.toInt))
+  private def parseTermString: Parser[Term] = parseTermStringUnquoted | parseTermStringQuotedSingle | parseTermStringQuotedDouble
+  private def parseTermStringUnquoted: Parser[Term] = """[a-z]\S*\b""".r ^^ (c => Constant[String](c))
+  private def parseTermStringQuotedSingle: Parser[Term] = "'" ~> """[a-z][^\n\t']*\b""".r <~ "'"  ^^ (c => Constant[String](c))
+  private def parseTermStringQuotedDouble: Parser[Term] = '"' ~> """[a-z][^\n\t"]*\b""".r <~ '"'  ^^ (c => Constant[String](c))
+  private def parseTermFloat: Parser[Term] = """-?\d+\.\d*\b""".r ^^ (c => Constant[Float](c.toFloat))
+  private def parseVariable: Parser[Variable] = """[A-Z][a-zA-Z]*""".r ^^ (c => Variable(c))
+  private def headParser: Parser[Head] = atomParser <~ ":-" ^^ (atom => new Head(atom.relationName, atom.terms))
+  private def bodyParser: Parser[Set[Atom]] = rep1sep(atomParser, ",") <~ "." ^^ (atoms => atoms.toSet)
+
   def apply(input: String): ConjunctiveQuery = {
-    parseAll(parseQuery, input) match {
-      case Success(matched, _) =>
-        println(matched)
-        return matched
+    parseAll(queryParser, input) match {
+      case Success(matched, _) => matched
       case Failure(msg, _) => throw new ArithmeticException(msg)
       case Error(msg, _) => throw new ArithmeticException(msg)
     }
   }
 
   def test(): Unit = {
-    val input = "Answer(z) :- Beers(Orval, 1.4, y), Location(1, 65, Hier)."
-    val result = parseAll(parseQuery, input)
+    val input = "Answer(uu) :- Beers(Orval, 1.4, y), Location(1, 'h#i--er', 'hie\"r en daar')."
+    val result = parseAll(queryParser, input)
 
     result match {
       case Success(matched, _) => println(matched)
@@ -59,4 +59,6 @@ class QueryParser(loaded_datasets : Map[String, Dataset]) extends RegexParsers {
       case Error(msg, _) => println(s"Error: $msg")
     }
   }
+
+  //based on thus loosely inspired by https://github.com/scala/scala-parser-combinators/blob/main/docs/Getting_Started.md
 }
