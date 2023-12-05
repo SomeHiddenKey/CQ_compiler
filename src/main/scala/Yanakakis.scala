@@ -31,8 +31,7 @@ object Yanakakis {
           for e: Row <- tbl.iterator().asScala do
             if
               //check if all index's with constant values have that value
-              constants_filter.forall((i, v) => e.getExtensionType(i) == v)
-                &&
+              constants_filter.forall((i, v) => e.getExtensionType(i) == v) &&
               //check if all index's with the same variable name have the same value
               variable_filter.forall((_, v) => v.tail.forall((_,i) => e.getExtensionType(v.head._2) == e.getExtensionType(i)))
             then
@@ -60,7 +59,7 @@ object Yanakakis {
       v2 <- values2
     } yield v1.appendedAll(v2)
 
-  def QsEval(n: Node): List[List[AnyRef]] =
+  private def QsEval(n: Node): List[List[AnyRef]] =
     var Qs: List[List[AnyRef]] = qs(n.atom)
     n.children.foreach(child =>
       Qs = leftjoin(Qs, QsEval(child), n.atom, child.atom)
