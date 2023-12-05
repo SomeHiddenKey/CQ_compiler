@@ -23,13 +23,14 @@ object QueryParser extends RegexParsers {
 import scala.util.parsing.combinator.*
 
 class QueryParser(loaded_datasets : Map[String, Dataset]) extends RegexParsers {
-  private def atomParser: Parser[Atom] = relationNameParser ~> "(" ~ termParser <~ ")" ^^ {
-    case head_name ~ b => new Atom(head_name, b, loaded_datasets.get(head_name))
+  private def atomParser: Parser[Atom] = relationNameParser ~ "(" ~ termParser ~ ")" ^^ {
+    case head_name ~ _ ~ b ~ _ =>
+      new Atom(head_name, b, loaded_datasets.get(head_name))
   }
   private def queryParser: Parser[ConjunctiveQuery] = headParser ~ bodyParser ^^ {
     case head ~ body => ConjunctiveQuery(head, body)
   }
-  private def relationNameParser: Parser[String] = """[A-Z][a-zA-Z]*""".r
+  private def relationNameParser: Parser[String] = """[a-zA-Z]+""".r
   private def termParser: Parser[List[Term]] = rep1sep( parseTermFloat | parseTermInt | parseTermString | parseVariable, ",")
   private def parseTermInt: Parser[Term] = """0|(-?[1-9]\d*)\b""".r ^^ (c => Constant[Int](c.toInt))
   private def parseTermString: Parser[Term] = parseTermStringUnquoted | parseTermStringQuotedSingle | parseTermStringQuotedDouble

@@ -7,7 +7,9 @@ import org.apache.arrow.dataset.source.Dataset
 import org.apache.arrow.dataset.source.DatasetFactory
 import org.apache.arrow.memory.BufferAllocator
 import org.apache.arrow.memory.RootAllocator
+import org.apache.arrow.vector.VectorSchemaRoot
 import org.apache.arrow.vector.ipc.ArrowReader
+import org.apache.arrow.vector.table.Table
 
 import java.io.File
 
@@ -23,19 +25,20 @@ object Runner {
       read("file:///" + System.getProperty("user.dir").replace(" ", "%20") + "/data/", file)
 
     val q: QueryParser = QueryParser(loaded_datasets)
-    val cq : ConjunctiveQuery = q("Answer(z, 5) :- Beers(A, B), Location(B, C).")
+    val cq : ConjunctiveQuery = q("Answer(z, 5) :- beers(A, B), location(B, C).")
     println(cq.getHyperGraph)
-    val cq1 : ConjunctiveQuery = q("Answer(z, 5) :- Beers(A, B), Beers(B, C), Beers(C, A), Beers(A, B, C), Beers(A, Z).")
+    val cq1 : ConjunctiveQuery = q("Answer(z, 5) :- beers(A, 166, C, D, E, F, G, G).")
+    Yanakakis.qs(cq1.body.head)
     println(cq1.getHyperGraph)
-    val cq2 : ConjunctiveQuery = q("Answer(z, 5) :- Beers(A, B), Beers(A, Z), Beers(A, B, C), Beers(B, C), Beers(C, A).")
+    val cq2 : ConjunctiveQuery = q("Answer(z, 5) :- beers(A, B), beers(A, Z), beers(A, B, C), beers(B, C), beers(C, A).")
     println(cq2.getHyperGraph)
-    val cq3: ConjunctiveQuery = q("Answer(z, 5) :- Beers(A, B), Beers(B, C), Beers(C, A), Beers(A, Z).")
+    val cq3: ConjunctiveQuery = q("Answer(z, 5) :- beers(A, B), Beers(B, C), Beers(C, A), Beers(A, Z).")
     println(cq3.getHyperGraph)
-    val cq4: ConjunctiveQuery = q("Answer(z, 5) :- Beers(A, B), Beers(A, B, C), Beers(B, C), Beers(A, B), Beers(C, A), Beers(A, Z).")
+    val cq4: ConjunctiveQuery = q("Answer(z, 5) :- beers(A, B), beers(A, B, C), beers(B, C), beers(A, B), beers(C, A), beers(A, Z).")
     println(cq4.getHyperGraph)
-    val cq5: ConjunctiveQuery = q("Answer(z, 5) :- Beers(A, A, B, B), Beers(A, B, C, C), Beers(B, C), Beers(A, B), Beers(C, A), Beers(A, Z).")
+    val cq5: ConjunctiveQuery = q("Answer(z, 5) :- beers(A, A, B, B), beers(A, B, C, C), beers(B, C), beers(A, B), beers(C, A), beers(A, Z).")
     println(cq5.getHyperGraph)
-    val cq6 : ConjunctiveQuery = q("Answers(r) :- Beers(C), Beers(B).")
+    val cq6 : ConjunctiveQuery = q("Answers(r) :- beers(C), beers(B).")
     println(cq6.getHyperGraph)
 
   private def read(uri: String, file_name : String): Unit =
@@ -47,12 +50,14 @@ object Runner {
       val scanner: Scanner = dataset.newScan(options)
       val reader: ArrowReader = scanner.scanBatches()
       var totalBatchSize: Int = 0
-//      while reader.loadNextBatch() do {
-//        val root: VectorSchemaRoot = reader.getVectorSchemaRoot
-//        totalBatchSize += root.getRowCount
-//        println(root.contentToTSVString())
-//      }
-//
+      while reader.loadNextBatch() do {
+        val root: VectorSchemaRoot = reader.getVectorSchemaRoot
+        val tbl = Table(root)
+        tbl.iterator()
+        totalBatchSize += root.getRowCount
+        println(root.contentToTSVString())
+      }
+
       println("Loaded: " + file_name)
 //      println("Total batch size: " + totalBatchSize)
     }
