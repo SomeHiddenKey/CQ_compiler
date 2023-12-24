@@ -6,7 +6,7 @@ import org.apache.arrow.vector.table.{Row, Table}
 
 import scala.jdk.CollectionConverters.*
 
-object Yanakakis {
+object Yannakakis {
   def qs(a: Atom): List[List[AnyRef]] =
     var values : List[List[AnyRef]] = List[List[AnyRef]]()
     a.dataset match {
@@ -98,11 +98,11 @@ object Yanakakis {
     n.children.foreach(child => n.value = fullJoin(n.value, child.value, n.atom, child.atom)) // Os(D) ∶= π[s∪x] ( Os(D) ⨝ Osj(D) )
     n.value //answer Or(D)
 
-  private def YanakakisEval(root: Node): List[List[AnyRef]] =
+  private def YannakakisEval(root: Node): List[List[AnyRef]] =
     QsEval(root)
     AsEval(root)
 
   def apply(graph: Hypergraph): List[List[AnyRef]] =
-    graph.roots.tail.foldRight[List[List[AnyRef]]](YanakakisEval(graph.roots.head))((newRoot, values) => cartesianjoin(YanakakisEval(newRoot), values))
+    graph.roots.tail.foldRight[List[List[AnyRef]]](YannakakisEval(graph.roots.head))((newRoot, values) => cartesianjoin(YannakakisEval(newRoot), values))
   //in case we have multiple roots, we just full cartesian join everything given that the graphs are fully independant anyways
 }
