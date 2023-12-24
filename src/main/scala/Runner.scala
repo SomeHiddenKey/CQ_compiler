@@ -39,8 +39,9 @@ object Runner {
     val cq5: ConjunctiveQuery = q("Answer(z, 5) :- beers(A, A, B, B), beers(A, B, C, C), beers(B, C), beers(A, B), beers(C, A), beers(A, Z).")
     println(cq5.getHyperGraph)
     val cq6 : ConjunctiveQuery = q("Answers(r) :- beers(C), beers(B).")
-    println(cq6.getHyperGraph)
 
+    val cqYannakakis : ConjunctiveQuery = q("Answer(z) :- beers(A, B, C, D, E, F, G, H), locations(I, B, J, K, L).")
+    Yanakakis(cqYannakakis.getHyperGraph.get)
   private def read(uri: String, file_name : String): Unit =
     try {
       val allocator: BufferAllocator = new RootAllocator()

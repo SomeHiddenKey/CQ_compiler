@@ -31,10 +31,10 @@ object Yanakakis {
           for e: Row <- tbl.iterator().asScala do
             if
               //check if all index's with constant values have that value
-              constants_filter.forall((i, v) => e.getExtensionType(i) == v)
+              (constants_filter.forall((i, v) => e.getExtensionType(i) == v)
                 &&
               //check if all index's with the same variable name have the same value
-              variable_filter.forall((_, v) => v.tail.forall((_,i) => e.getExtensionType(v.head._2) == e.getExtensionType(i)))
+              variable_filter.forall((_, v) => v.tail.forall((_,i) => e.getExtensionType(v.head._2) == e.getExtensionType(i))))
             then
               var rowValues: List[AnyRef] = List[AnyRef]()
               for i <- 0 until size do
@@ -47,7 +47,11 @@ object Yanakakis {
   private def leftjoin(values1: List[List[AnyRef]], values2: List[List[AnyRef]], atom1: Atom, atom2: Atom): List[List[AnyRef]] =
     // values1 ⋉ values2
     // use atom for variable name schematic
-    throw NotImplementedError()
+    val common = atom1.terms.intersect(atom2.terms)   //get term which occurs in both atoms
+    val dict2: Map[AnyRef, List[List[AnyRef]]] = values2.groupMap(_(atom2.terms.indexOf(common.head)))(identity)  // create dictionary of rows in values2 (key = the element which both value-lists had in common)
+    values1.map{row =>
+      row.appendedAll(dict2.get(row(atom1.terms.indexOf(common.head))))
+    }
 
   private def fulljoin(values1: List[List[AnyRef]], values2: List[List[AnyRef]], atom1: Atom, atom2: Atom): List[List[AnyRef]] =
     // values1 ⨝ values2
@@ -60,17 +64,28 @@ object Yanakakis {
       v2 <- values2
     } yield v1.appendedAll(v2)
 
+
   def QsEval(n: Node): List[List[AnyRef]] =
-    var Qs: List[List[AnyRef]] = qs(n.atom)
-    n.children.foreach(child =>
-      Qs = leftjoin(Qs, QsEval(child), n.atom, child.atom)
+    n.value = qs(n.atom) // calculate qs
+    println("start n.children")
+    println(n.children.toString)
+    println("end n.children")
+    n.children.foreach(child => //for all children i
+      n.value = leftjoin(n.value, QsEval(child), n.atom, child.atom) //Qs(D) ∶= ⋂ ( qs(D) ⋉ Qsi(D) )
     )
-    //not sure this is correct
-    Qs
+    n.value
+
+  private def AsEval(n: Node): List[List[AnyRef]] =
+    n.children.foreach(child => child.value = leftjoin(child.value, n.value, child.atom, n.atom)) //As′(D) ∶= Qs′(D) ⋉ As(D)
+    n.children.foreach(child => AsEval(child)) //recursively do As evalution from root to leaves
+    n.children.foreach(child => n.value = fulljoin(n.value, child.value, n.atom, child.atom)) // Os(D) ∶= π[s∪x] ( Os(D) ⨝ Osj(D) )
+    n.value //answer Or(D)
 
   private def YanakakisEval(root: Node): List[List[AnyRef]] =
-    throw NotImplementedError()
+    QsEval(root)
+    AsEval(root)
 
-  def apply(graph: Hypergraph) : List[List[AnyRef]] =
-    graph.roots.tail.foldRight[List[List[AnyRef]]](YanakakisEval(graph.roots.head))((newRoot, values) => cartesianjoin(YanakakisEval(newRoot),values))
+  def apply(graph: Hypergraph): List[List[AnyRef]] =
+    graph.roots.tail.foldRight[List[List[AnyRef]]](YanakakisEval(graph.roots.head))((newRoot, values) => cartesianjoin(YanakakisEval(newRoot), values))
+  //in case we have multiple roots, we just full cartesian join everything given that the graphs are fully independant anyways
 }
