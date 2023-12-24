@@ -51,10 +51,30 @@ object Yanakakis {
     val dict2: Map[AnyRef, List[List[AnyRef]]] = values2.groupMap(_(atom2.terms.indexOf(common.head)))(identity)  // create dictionary of rows in values2 (key = the element which both value-lists had in common)
     values1.filter(row => {dict2.contains(row(atom1.terms.indexOf(common.head)))}) // only keep the elements which occur in the map
 
-  private def fulljoin(values1: List[List[AnyRef]], values2: List[List[AnyRef]], atom1: Atom, atom2: Atom): List[List[AnyRef]] =
+  private def fullJoin(values1: List[List[AnyRef]], values2: List[List[AnyRef]], atom1: Atom, atom2: Atom): List[List[AnyRef]] =
     // values1 ⨝ values2
     // use atom for variable name schematic
-    throw NotImplementedError()
+    val common = atom1.terms.intersect(atom2.terms)
+    val dict1: Map[AnyRef, List[List[AnyRef]]] = values1.groupMap(_(atom1.terms.indexOf(common.head)))(identity) // create dictionary of rows in values1 (key = the element which both value-lists had in common)
+    val dict2: Map[AnyRef, List[List[AnyRef]]] = values2.groupMap(_(atom2.terms.indexOf(common.head)))(identity) // create dictionary of rows in values2 (key = the element which both value-lists had in common)
+    val allKeys = (dict1.keys ++ dict2.keys).toSet
+    val res = allKeys.map(key => {
+      val val1 = dict1.getOrElse(key, List.fill(atom1.terms.size)(null))
+      val val2 = dict2.getOrElse(key, List.fill(atom2.terms.size)(null))
+      val res1: List[List[AnyRef]] = for {
+        row1 <- val1
+        row2 <- val2
+      } yield row1 ::: row2
+      println("res1: " + res1)
+      val res2: List[List[AnyRef]] = for {
+        row2 <- val2
+        row1 <- val1
+      } yield row1 ::: row2
+      println("res2: " + res2)
+      (res1 ++ res2).distinct
+    }).toList
+    println("res: " + res)
+    res
 
   private def cartesianjoin(values1: List[List[AnyRef]], values2: List[List[AnyRef]]): List[List[AnyRef]] =
     for {
@@ -65,9 +85,6 @@ object Yanakakis {
 
   def QsEval(n: Node): List[List[AnyRef]] =
     n.value = qs(n.atom) // calculate qs
-    println("start n.children")
-    println(n.children.toString)
-    println("end n.children")
     n.children.foreach(child => //for all children i
       n.value = semiJoin(n.value, QsEval(child), n.atom, child.atom) //Qs(D) ∶= ⋂ ( qs(D) ⋉ Qsi(D) )
     )
@@ -76,7 +93,7 @@ object Yanakakis {
   private def AsEval(n: Node): List[List[AnyRef]] =
     n.children.foreach(child => child.value = semiJoin(child.value, n.value, child.atom, n.atom)) //As′(D) ∶= Qs′(D) ⋉ As(D)
     n.children.foreach(child => AsEval(child)) //recursively do As evalution from root to leaves
-    n.children.foreach(child => n.value = fulljoin(n.value, child.value, n.atom, child.atom)) // Os(D) ∶= π[s∪x] ( Os(D) ⨝ Osj(D) )
+    n.children.foreach(child => n.value = fullJoin(n.value, child.value, n.atom, child.atom)) // Os(D) ∶= π[s∪x] ( Os(D) ⨝ Osj(D) )
     n.value //answer Or(D)
 
   private def YanakakisEval(root: Node): List[List[AnyRef]] =
