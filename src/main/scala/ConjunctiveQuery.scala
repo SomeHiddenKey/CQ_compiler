@@ -19,7 +19,7 @@ class ConjunctiveQuery(val head : Head,  val body : Set[Atom]):
             allTerms += uniques // buildup all-edges list
         }
     }
-    println(nodeToEdge)
+    //println(nodeToEdge)
 
     var changedSomething = true
 

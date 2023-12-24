@@ -55,26 +55,28 @@ object Yanakakis {
     // values1 ⨝ values2
     // use atom for variable name schematic
     val common = atom1.terms.intersect(atom2.terms)
-    val dict1: Map[AnyRef, List[List[AnyRef]]] = values1.groupMap(_(atom1.terms.indexOf(common.head)))(identity) // create dictionary of rows in values1 (key = the element which both value-lists had in common)
-    val dict2: Map[AnyRef, List[List[AnyRef]]] = values2.groupMap(_(atom2.terms.indexOf(common.head)))(identity) // create dictionary of rows in values2 (key = the element which both value-lists had in common)
+    var dict1: Map[AnyRef, List[List[AnyRef]]] = values1.groupMap(_(atom1.terms.indexOf(common.head)))(identity) // create dictionary of rows in values1 (key = the element which both value-lists had in common)
+    var dict2: Map[AnyRef, List[List[AnyRef]]] = values2.groupMap(_(atom2.terms.indexOf(common.head)))(identity) // create dictionary of rows in values2 (key = the element which both value-lists had in common)
     val allKeys = (dict1.keys ++ dict2.keys).toSet
-    val res = allKeys.map(key => {
-      val val1 = dict1.getOrElse(key, List.fill(atom1.terms.size)(null))
-      val val2 = dict2.getOrElse(key, List.fill(atom2.terms.size)(null))
-      val res1: List[List[AnyRef]] = for {
-        row1 <- val1
-        row2 <- val2
-      } yield row1 ::: row2
-      println("res1: " + res1)
-      val res2: List[List[AnyRef]] = for {
-        row2 <- val2
-        row1 <- val1
-      } yield row1 ::: row2
-      println("res2: " + res2)
-      (res1 ++ res2).distinct
-    }).toList
-    println("res: " + res)
-    res
+    allKeys.foreach(key => {
+      if !dict1.contains(key) then
+        val list = List.fill(atom1.terms.size)(null).updated(atom1.terms.indexOf(common.head), key)
+        dict1 = dict1.updated(key, List(list))
+      else if !dict2.contains(key) then
+        val list = List.fill(atom2.terms.size)(null).updated(atom2.terms.indexOf(common.head), key)
+        dict2 = dict2.updated(key, List(list))
+    })
+    for {
+      key <- allKeys.toList
+      val1 = dict1(key)
+      val2 = dict2(key)
+      v1 <- val1
+      v2 <- val2
+    } yield v1 ::: v2
+
+
+
+
 
   private def cartesianjoin(values1: List[List[AnyRef]], values2: List[List[AnyRef]]): List[List[AnyRef]] =
     for {

@@ -19,25 +19,25 @@ object Runner {
   var loaded_datasets : Map[String, Dataset] = Map()
 
   @main def start(): Unit =
-    println("file:///" + System.getProperty("user.dir").replace(" ", "%20"))
+   // println("file:///" + System.getProperty("user.dir").replace(" ", "%20"))
     val files = listFilesInDirectory(System.getProperty("user.dir") + s"/data/")
     for (file <- files)
       read("file:///" + System.getProperty("user.dir").replace(" ", "%20") + "/data/", file)
 
     val q: QueryParser = QueryParser(loaded_datasets)
     val cq : ConjunctiveQuery = q("Answer(z, 5) :- beers(A, B), location(B, C).")
-    println(cq.getHyperGraph)
+   // println(cq.getHyperGraph)
     val cq1 : ConjunctiveQuery = q("Answer(z, 5) :- beers(A, 166, C, D, E, F, G, G).")
     Yanakakis.qs(cq1.body.head)
-    println(cq1.getHyperGraph)
+   // println(cq1.getHyperGraph)
     val cq2 : ConjunctiveQuery = q("Answer(z, 5) :- beers(A, B), beers(A, Z), beers(A, B, C), beers(B, C), beers(C, A).")
-    println(cq2.getHyperGraph)
+   // println(cq2.getHyperGraph)
     val cq3: ConjunctiveQuery = q("Answer(z, 5) :- beers(A, B), Beers(B, C), Beers(C, A), Beers(A, Z).")
-    println(cq3.getHyperGraph)
+   // println(cq3.getHyperGraph)
     val cq4: ConjunctiveQuery = q("Answer(z, 5) :- beers(A, B), beers(A, B, C), beers(B, C), beers(A, B), beers(C, A), beers(A, Z).")
-    println(cq4.getHyperGraph)
+   // println(cq4.getHyperGraph)
     val cq5: ConjunctiveQuery = q("Answer(z, 5) :- beers(A, A, B, B), beers(A, B, C, C), beers(B, C), beers(A, B), beers(C, A), beers(A, Z).")
-    println(cq5.getHyperGraph)
+   // println(cq5.getHyperGraph)
     val cq6 : ConjunctiveQuery = q("Answers(r) :- beers(C), beers(B).")
 
     val cqYannakakis : ConjunctiveQuery = q("Answer(z) :- beers(A, B, C, D, E, F, G, H), locations(I, B, J, K, L).")
@@ -56,10 +56,10 @@ object Runner {
         val tbl = Table(root)
         tbl.iterator()
         totalBatchSize += root.getRowCount
-        println(root.contentToTSVString())
+      //  println(root.contentToTSVString())
       }
 
-      println("Loaded: " + file_name)
+     // println("Loaded: " + file_name)
 //      println("Total batch size: " + totalBatchSize)
     }
     catch case e: Exception => e.printStackTrace()
