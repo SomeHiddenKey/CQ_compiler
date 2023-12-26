@@ -16,7 +16,7 @@ import java.io.File
 object Runner {
   var options : ScanOptions = new ScanOptions(/*batchSize*/ 32768)
 
-  var loaded_datasets : Map[String, Dataset] = Map()
+  var loaded_datasets : Map[String, String] = Map()
 
   @main def start(): Unit =
    // println("file:///" + System.getProperty("user.dir").replace(" ", "%20"))
@@ -28,7 +28,7 @@ object Runner {
     val cq : ConjunctiveQuery = q("Answer(z, 5) :- beers(A, B), location(B, C).")
    // println(cq.getHyperGraph)
     val cq1 : ConjunctiveQuery = q("Answer(z, 5) :- beers(A, 166, C, D, E, F, G, G).")
-    Yannakakis.qs(cq1.body.head)
+//    Yannakakis.qs(cq1.body.head)
    // println(cq1.getHyperGraph)
     val cq2 : ConjunctiveQuery = q("Answer(z, 5) :- beers(A, B), beers(A, Z), beers(A, B, C), beers(B, C), beers(C, A).")
    // println(cq2.getHyperGraph)
@@ -40,27 +40,11 @@ object Runner {
    // println(cq5.getHyperGraph)
     val cq6 : ConjunctiveQuery = q("Answers(r) :- beers(C), beers(B).")
 
-    val cqYannakakis : ConjunctiveQuery = q("Answer(z) :- beers(A, B, C, D, E, F, G, H), locations(I, B, J, K, L).")
+    val cqYannakakis : ConjunctiveQuery = q("Answer(z) :- breweries(A, B, C, D, E, F, G, H, I, J, K).")//beers(A, B, C, D, E, F, G, H), locations(I, B, J, K, L).")
     Yannakakis(cqYannakakis.getHyperGraph.get)
   private def read(uri: String, file_name : String): Unit =
     try {
-      val allocator: BufferAllocator = new RootAllocator()
-      val datasetFactory: DatasetFactory = new FileSystemDatasetFactory(allocator, NativeMemoryPool.getDefault, FileFormat.CSV, uri+file_name)
-      val dataset: Dataset = datasetFactory.finish()
-      loaded_datasets += file_name.split("\\.").head -> dataset
-      val scanner: Scanner = dataset.newScan(options)
-      val reader: ArrowReader = scanner.scanBatches()
-      var totalBatchSize: Int = 0
-      while reader.loadNextBatch() do {
-        val root: VectorSchemaRoot = reader.getVectorSchemaRoot
-        val tbl = Table(root)
-        tbl.iterator()
-        totalBatchSize += root.getRowCount
-      //  println(root.contentToTSVString())
-      }
-
-     // println("Loaded: " + file_name)
-//      println("Total batch size: " + totalBatchSize)
+      loaded_datasets = loaded_datasets + (file_name.split("\\.").head -> uri.+(file_name) )
     }
     catch case e: Exception => e.printStackTrace()
 

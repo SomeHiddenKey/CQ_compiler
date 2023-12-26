@@ -1,6 +1,15 @@
+import org.apache.arrow.dataset.file.FileSystemDatasetFactory
+import org.apache.arrow.dataset.file.FileFormat
+import org.apache.arrow.dataset.jni.NativeMemoryPool
 import org.apache.arrow.dataset.scanner.ScanOptions
 import org.apache.arrow.dataset.scanner.Scanner
 import org.apache.arrow.dataset.source.Dataset
+import org.apache.arrow.dataset.source.DatasetFactory
+import org.apache.arrow.vector.FieldVector
+import org.apache.arrow.dataset.scanner.ScanOptions
+import org.apache.arrow.dataset.scanner.Scanner
+import org.apache.arrow.dataset.source.Dataset
+import org.apache.arrow.memory.{BufferAllocator, RootAllocator}
 import org.apache.arrow.vector.ipc.ArrowReader
 import org.apache.arrow.vector.table.{Row, Table}
 
@@ -9,8 +18,12 @@ import scala.jdk.CollectionConverters.*
 object Yannakakis {
   def qs(a: Atom): List[List[AnyRef]] =
     var values : List[List[AnyRef]] = List[List[AnyRef]]()
+
     a.dataset match {
-      case Some(ds) =>
+      case Some(uri) =>
+        val allocator: BufferAllocator = new RootAllocator()
+        val datasetFactory: DatasetFactory = new FileSystemDatasetFactory(allocator, NativeMemoryPool.getDefault, FileFormat.CSV, uri)
+        val dataset: Dataset = datasetFactory.finish()
         val constants_filter = a.terms
           .zipWithIndex
           .collect{case (Constant(value),i) => (i,value)}
@@ -21,11 +34,16 @@ object Yannakakis {
           .groupBy(_._1)
           .filter(_._2.length > 1) //only variables that appear at least twice
 
-        val scanner1: Scanner = ds.newScan(ScanOptions(32768))
-        val reader1: ArrowReader = scanner1.scanBatches()
-        while reader1.loadNextBatch() do {
-          val tbl = Table(reader1.getVectorSchemaRoot)
-          val vectors = reader1.getVectorSchemaRoot.getFieldVectors
+        val scanner: Scanner = dataset.newScan(ScanOptions(32768))
+        val reader: ArrowReader = scanner.scanBatches()
+        while reader.loadNextBatch() do {
+
+          val schema : Array[FieldVector]= reader.getVectorSchemaRoot.getFieldVectors.toArray.map[FieldVector]{
+            case e:org.apache.arrow.vector.NullVector => org.apache.arrow.vector.VarCharVector(e.getName, allocator)
+            case e:FieldVector => e
+          }
+          val tbl = Table(schema.toSeq.asJava)
+          val vectors = reader.getVectorSchemaRoot.getFieldVectors
           val size = vectors.size()
 
           for e: Row <- tbl.iterator().asScala do
@@ -73,10 +91,6 @@ object Yannakakis {
       v1 <- val1
       v2 <- val2
     } yield v1 ::: v2
-
-
-
-
 
   private def cartesianjoin(values1: List[List[AnyRef]], values2: List[List[AnyRef]]): List[List[AnyRef]] =
     for {

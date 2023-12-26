@@ -24,7 +24,7 @@ class uniqueTerm(val variables : scala.collection.mutable.Set[String], val node:
 
 }
 
-class Atom(val relationName : String, val terms : List[Term], val dataset : Option[Dataset] = None):
+class Atom(val relationName : String, val terms : List[Term], val dataset : Option[String] = None):
   val uniqueTerms: scala.collection.mutable.Set[String] = scala.collection.mutable.Set( terms.collect {
     case v : Variable => v.name
   } :_* )
