@@ -35,8 +35,10 @@ class QueryParser(loaded_datasets : Map[String, Dataset]) extends RegexParsers {
   private def parseTermInt: Parser[Term] = """0|(-?[1-9]\d*)\b""".r ^^ (c => Constant[Int](c.toInt))
   private def parseTermString: Parser[Term] = parseTermStringUnquoted | parseTermStringQuotedSingle | parseTermStringQuotedDouble
   private def parseTermStringUnquoted: Parser[Term] = """[a-z]\S*\b""".r ^^ (c => Constant[String](c))
-  private def parseTermStringQuotedSingle: Parser[Term] = "'" ~> """[a-z][^\n\t']*\b""".r <~ "'"  ^^ (c => Constant[String](c))
-  private def parseTermStringQuotedDouble: Parser[Term] = '"' ~> """[a-z][^\n\t"]*\b""".r <~ '"'  ^^ (c => Constant[String](c))
+
+  private def parseTermStringQuotedSingle: Parser[Term] = "'" ~> """[a-zA-Z][^\n\t']*\b""".r <~ "'" ^^ (c => Constant[String](c))
+
+  private def parseTermStringQuotedDouble: Parser[Term] = '"' ~> """[a-zA-Z][^\n\t"]*\b""".r <~ '"' ^^ (c => Constant[String](c))
   private def parseTermFloat: Parser[Term] = """-?\d+\.\d*\b""".r ^^ (c => Constant[Float](c.toFloat))
   private def parseVariable: Parser[Variable] = """[A-Z][a-zA-Z]*""".r ^^ (c => Variable(c))
   private def headParser: Parser[Head] = atomParser <~ ":-" ^^ (atom => new Head(atom.relationName, atom.terms))
