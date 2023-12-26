@@ -12,7 +12,9 @@ case class Constant[T <: Any](value : T) extends Term
 case class Variable(name : String) extends Term
 */
 
-type apacheType = Int | String | Float
+import org.apache.arrow.vector.util.Text
+
+type apacheType = Int | Text | Float
 trait Term
 
 class uniqueTerm(val variables : scala.collection.mutable.Set[String], val node: Node){

@@ -47,6 +47,7 @@ object Yannakakis {
           val size = vectors.size()
 
           for e: Row <- tbl.iterator().asScala do
+            val dummy = 0
             if
               //check if all index's with constant values have that value
               (constants_filter.forall((i, v) => e.getExtensionType(i) == v)

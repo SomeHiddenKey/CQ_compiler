@@ -1,5 +1,6 @@
 import org.apache.arrow.dataset.source.Dataset
 import scala.util.parsing.combinator.RegexParsers
+import org.apache.arrow.vector.util.Text
 import scala.util.parsing.combinator.*
 
 class QueryParser(loaded_datasets : Map[String, String]) extends RegexParsers {
@@ -14,11 +15,11 @@ class QueryParser(loaded_datasets : Map[String, String]) extends RegexParsers {
   private def termParser: Parser[List[Term]] = rep1sep( parseTermFloat | parseTermInt | parseTermString | parseVariable, ",")
   private def parseTermInt: Parser[Term] = """0|(-?[1-9]\d*)\b""".r ^^ (c => Constant[Int](c.toInt))
   private def parseTermString: Parser[Term] = parseTermStringUnquoted | parseTermStringQuotedSingle | parseTermStringQuotedDouble
-  private def parseTermStringUnquoted: Parser[Term] = """[a-z]\S*\b""".r ^^ (c => Constant[String](c))
+  private def parseTermStringUnquoted: Parser[Term] = """[a-z]\S*\b""".r ^^ (c => Constant[Text](Text(c)))
 
-  private def parseTermStringQuotedSingle: Parser[Term] = "'" ~> """[a-zA-Z][^\n\t']*\b""".r <~ "'" ^^ (c => Constant[String](c))
+  private def parseTermStringQuotedSingle: Parser[Term] = "'" ~> """[a-zA-Z][^\n\t']*\b""".r <~ "'" ^^ (c => Constant[Text](Text(c)))
 
-  private def parseTermStringQuotedDouble: Parser[Term] = '"' ~> """[a-zA-Z][^\n\t"]*\b""".r <~ '"' ^^ (c => Constant[String](c))
+  private def parseTermStringQuotedDouble: Parser[Term] = '"' ~> """[a-zA-Z][^\n\t"]*\b""".r <~ '"' ^^ (c => Constant[Text](Text(c)))
   private def parseTermFloat: Parser[Term] = """-?\d+\.\d*\b""".r ^^ (c => Constant[Float](c.toFloat))
   private def parseVariable: Parser[Variable] = """[A-Z][a-zA-Z]*""".r ^^ (c => Variable(c))
   private def headParser: Parser[Head] = atomParser <~ ":-" ^^ (atom => new Head(atom.relationName, atom.terms))
