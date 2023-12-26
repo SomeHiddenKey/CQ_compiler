@@ -42,6 +42,14 @@ object Runner {
 
     val cqYannakakis : ConjunctiveQuery = q("Answer(z) :- breweries(3, B, C, D, E, F, G, 'Belgium', I, J, K).")
     Yannakakis(cqYannakakis.getHyperGraph.get)
+
+
+   // val cqYannakakis2: ConjunctiveQuery = q("Answer(z) :- breweries(A, B, C, D, E, 'Or', G, H, I, J, K).")
+    val cqYannakakis2: ConjunctiveQuery = q("Answer(z) :- breweries(A, 'Abbaye Notre Dame du St Remy', C, D, E, F, G, H, I, J, K), beers(L, A, N, O, P, Q, R, S).")
+    val res2 = Yannakakis(cqYannakakis2.getHyperGraph.get)
+    println(res2)
+
+
   private def read(uri: String, file_name : String): Unit =
     try {
       loaded_datasets = loaded_datasets + (file_name.split("\\.").head -> uri.+(file_name) )
