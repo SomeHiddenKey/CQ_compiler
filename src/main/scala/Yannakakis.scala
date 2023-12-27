@@ -117,6 +117,10 @@ object Yannakakis {
     QsEval(root)
     AsEval(root)
 
+  def YannakakisEvalBoolean(root: Node): Int =
+    QsEval(root)
+    if root.value.isEmpty then 0 else 1
+
   def apply(graph: Hypergraph): List[List[AnyRef]] =
     graph.roots.tail.foldRight[List[List[AnyRef]]](YannakakisEval(graph.roots.head))((newRoot, values) => cartesianjoin(YannakakisEval(newRoot), values))
   //in case we have multiple roots, we just full cartesian join everything given that the graphs are fully independant anyways
