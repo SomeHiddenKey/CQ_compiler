@@ -38,10 +38,9 @@ class ConjunctiveQuery(val head : Head,  val body : Set[Atom]):
 
       //filter out all variables with only one referred edge
       nodeToEdge.filterInPlace((node , edges) => {
-        var edge_actives = edges
-        edges.size > 1 && {
-          edge_actives = edges.filter(_.active) //filter out all inactive edges and count again
-          nodeToEdge.update(node, edge_actives)
+        val edge_actives = edges.filter(_.active) //filter out all inactive edges and count again
+        {
+          if edges.length != edge_actives.length then nodeToEdge.update(node, edge_actives)
           edge_actives.size > 1
         }
         ||
@@ -64,6 +63,7 @@ class ConjunctiveQuery(val head : Head,  val body : Set[Atom]):
               //lone edge is a new root
               hypergraph.nodes.add(edge_actives.head.node)
               hypergraph.roots.add(edge_actives.head.node)
+              edge_actives.head.active = false
               changedSomething = true
             }
           }
@@ -73,4 +73,5 @@ class ConjunctiveQuery(val head : Head,  val body : Set[Atom]):
     }
 
     //are there any nodes still attached to active edges -> if yes then acyclic
-    if nodeToEdge.isEmpty then Some(hypergraph) else None
+    if nodeToEdge.isEmpty then
+      Some(hypergraph) else None

@@ -1,6 +1,6 @@
 import org.apache.arrow.vector.util.Text
 
-type apacheType = Int | Text | Float
+type apacheType = Int | Text | Double
 trait Term
 
 class uniqueTerm(val variables : scala.collection.mutable.Set[String], val node: Node){

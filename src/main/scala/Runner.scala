@@ -13,7 +13,8 @@ object Runner {
       read("file:///" + System.getProperty("user.dir").replace(" ", "%20") + "/data/", file)
 
     val q: QueryParser = QueryParser(loaded_datasets)
-    val cq : ConjunctiveQuery = q("Answer(z, 5) :- beers(A, B), location(B, C).")
+    val cq : ConjunctiveQuery = q("Answer(z, 5) :- beers(D, B, A), location(B, C).")
+    //cq.getHyperGraph
     val cq1 : ConjunctiveQuery = q("Answer(z, 5) :- beers(a, 166, a, Dee_56jj, E, F, G, G).")
     //Yannakakis.qs(cq1.body.head)
    // println(cq1.getHyperGraph)
@@ -31,8 +32,8 @@ object Runner {
     //println(Yannakakis(cqYannakakis))
 
    // val cqYannakakis2: ConjunctiveQuery = q("Answer(z) :- breweries(A, B, C, D, E, 'Or', G, H, I, J, K).")
-    val cqYannakakis2: ConjunctiveQuery = q("Answer(x, y, z) :- Breweries(w, x,'Westmalle', u1, u2, u3, u4, u5, u6 ,u7 ,u8), Locations(u9, w, y, z, u10).")
-   // val res2 = Yannakakis(cqYannakakis2)
+    val cqYannakakis2: ConjunctiveQuery = q("Answer(x, y, z, w) :- Beers(u1, v, x, 0.05, 18, u2, 'Vienna Lager', u3), Locations(u4, v, y, z, w).")
+    val res2 = Yannakakis(cqYannakakis2)
    // println(res2)
 
    // println(Yannakakis(q("Answer(x, y, z) :- Breweries(w, x,'Westmalle', u1, u2, u3, u4, u5, u6 ,u7 ,u8), Locations(u9, w, y, z, u10).")))
