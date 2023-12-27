@@ -45,9 +45,3 @@ class Head(relationName: String, terms: List[Term]) extends Atom(relationName, t
 
 def head : Head = Head("Answer", List(Variable("x")))
 def query : ConjunctiveQuery = new ConjunctiveQuery(head, Set(Atom("Beer", List(Constant(1), Variable("y"))), Atom("Location", List(Variable("y"), Variable("x")))))
-
-//@main def start() : Unit =
-//  println(query)
-//  query.body.foreach(element => {
-//    println(element.uniqueTerms)
-//  })

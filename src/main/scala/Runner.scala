@@ -27,7 +27,7 @@ object Runner {
     val q: QueryParser = QueryParser(loaded_datasets)
     val cq : ConjunctiveQuery = q("Answer(z, 5) :- beers(A, B), location(B, C).")
    // println(cq.getHyperGraph)
-    val cq1 : ConjunctiveQuery = q("Answer(z, 5) :- beers(A, 166, C, D, E, F, G, G).")
+    val cq1 : ConjunctiveQuery = q("Answer(z, 5) :- beers(a, 166, a, Dee_56jj, E, F, G, G).")
     //Yannakakis.qs(cq1.body.head)
    // println(cq1.getHyperGraph)
     val cq2 : ConjunctiveQuery = q("Answer(z, 5) :- beers(A, B), beers(A, Z), beers(A, B, C), beers(B, C), beers(C, A).")
@@ -40,8 +40,8 @@ object Runner {
    // println(cq5.getHyperGraph)
     val cq6 : ConjunctiveQuery = q("Answers(r) :- beers(C), beers(B).")
 
-    val cqYannakakis : ConjunctiveQuery = q("Answer(z) :- breweries(3, B, C, D, E, F, G, 'Belgium', I, J, K).")
-    Yannakakis(cqYannakakis.getHyperGraph.get)
+    //val cqYannakakis : ConjunctiveQuery = q("Answer(z) :- breweries(3, B, C, D, E, F, G, 'Belgium', I, J, K).")
+    //Yannakakis(cqYannakakis.getHyperGraph.get)
 
 
    // val cqYannakakis2: ConjunctiveQuery = q("Answer(z) :- breweries(A, B, C, D, E, 'Or', G, H, I, J, K).")
