@@ -135,8 +135,16 @@ object Yannakakis {
         if c.head.terms.isEmpty then
           if graph.roots.forall(root => YannakakisEvalBoolean(root)) then List[List[AnyRef]](List[AnyRef]()) else List[List[AnyRef]]()
         else
-          graph.roots.tail.foldRight[List[List[AnyRef]]](YannakakisEval(graph.roots.head))((newRoot, values) => cartesianjoin(YannakakisEval(newRoot), values))
+          val res = graph.roots.tail.foldRight[List[List[AnyRef]]](YannakakisEval(graph.roots.head))((newRoot, values) => cartesianjoin(YannakakisEval(newRoot), values))
+          projection(c, res)
       case None => null
     }
+
+  private def projection(query: ConjunctiveQuery, res: List[List[AnyRef]]): List[List[AnyRef]] =
+    val wanted = query.head.terms
+    val bodyList = query.body.toList.flatMap(el => el.terms)
+    val bodyIndices = wanted.map(element => bodyList.indexOf(element))
+    res.map(row => bodyIndices.collect {case i if i >= 0 && i < row.length => row(i)})
+
   //in case we have multiple roots, we just full cartesian join everything given that the graphs are fully independant anyways
 }
