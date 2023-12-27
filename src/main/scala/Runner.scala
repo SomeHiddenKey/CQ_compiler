@@ -51,7 +51,7 @@ object Runner {
 
 
     val queries: List[String] = List(
-      "Answer(d) :- Beers(u1, x, u2, 0.07, u3, u4, y, u5), Styles(u6, z, y), Categories(z, u7), Locations(u9, x, u9, u10, u11), Breweries(x, u12, u13, u14, u15, u16, u17, u18, u13, u14, u15).",
+      "Answer() :- Beers(u1, x, u2, 0.07, u3, u4, y, u5), Styles(u6, z, y), Categories(z, u7), Locations(u9, x, u9, u10, u11), Breweries(x, u12, u13, u14, u15, u16, u17, u18, u13, u14, u15).",
       //   "Answer(x, y, z) :- Breweries(w, x,'Westmalle', u1, u2, u3, u4, u5, u6 ,u7 ,u8), Locations(u9, w, y, z, u10).",
       //   "Answer(x, y, z) :- Beers(u1, u2, z, u3, u4, u5, x, u6), Styles(u7, y, x), Categories(y, z).",
       //   "Answer(x, y, z, w) :- Beers(u1, v, x, '0.05', '18', u2, 'Vienna Lager', u3), Locations(u4, v, y, z, w).",
