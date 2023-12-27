@@ -14,8 +14,15 @@ import org.apache.arrow.vector.ipc.ArrowReader
 import org.apache.arrow.vector.table.{Row, Table}
 
 import scala.jdk.CollectionConverters.*
+import org.apache.arrow.vector.util.Text
 
 object Yannakakis {
+  def getOrDefault(x: AnyRef) : AnyRef =
+    x match {
+      case null => Text("")
+      case e => e
+    }
+
   def qs(a: Atom): List[List[AnyRef]] =
     var values : List[List[AnyRef]] = List[List[AnyRef]]()
 
@@ -46,18 +53,19 @@ object Yannakakis {
           val vectors = reader.getVectorSchemaRoot.getFieldVectors
           val size = vectors.size()
 
+
           for e: Row <- tbl.iterator().asScala do
             val dummy = 0
             if
               //check if all index's with constant values have that value
-              (constants_filter.forall((i, v) => e.getExtensionType(i) == v)
+              (constants_filter.forall((i, v) => getOrDefault(e.getExtensionType(i)) == v)
                 &&
               //check if all index's with the same variable name have the same value
-              variable_filter.forall((_, v) => v.tail.forall((_,i) => e.getExtensionType(v.head._2) == e.getExtensionType(i))))
+              variable_filter.forall((_, v) => v.tail.forall((_,i) => getOrDefault(e.getExtensionType(v.head._2)) == getOrDefault(e.getExtensionType(i)))))
             then
               var rowValues: List[AnyRef] = List[AnyRef]()
               for i <- 0 until size do
-                rowValues = rowValues.appended(e.getExtensionType(i)) //append all values of each column one by one of the current row
+                rowValues = rowValues.appended(getOrDefault(e.getExtensionType(i))) //append all values of each column one by one of the current row
               values = values.appended(rowValues)
         }
     }
@@ -117,11 +125,18 @@ object Yannakakis {
     QsEval(root)
     AsEval(root)
 
-  def YannakakisEvalBoolean(root: Node): Int =
+  def YannakakisEvalBoolean(root: Node): Boolean =
     QsEval(root)
-    if root.value.isEmpty then 0 else 1
+    root.value.nonEmpty
 
-  def apply(graph: Hypergraph): List[List[AnyRef]] =
-    graph.roots.tail.foldRight[List[List[AnyRef]]](YannakakisEval(graph.roots.head))((newRoot, values) => cartesianjoin(YannakakisEval(newRoot), values))
+  def apply(c : ConjunctiveQuery): List[List[AnyRef]] =
+    c.getHyperGraph match {
+      case Some(graph) =>
+        if c.head.terms.isEmpty then
+          if graph.roots.forall(root => YannakakisEvalBoolean(root)) then List[List[AnyRef]](List[AnyRef]()) else List[List[AnyRef]]()
+        else
+          graph.roots.tail.foldRight[List[List[AnyRef]]](YannakakisEval(graph.roots.head))((newRoot, values) => cartesianjoin(YannakakisEval(newRoot), values))
+      case None => null
+    }
   //in case we have multiple roots, we just full cartesian join everything given that the graphs are fully independant anyways
 }
