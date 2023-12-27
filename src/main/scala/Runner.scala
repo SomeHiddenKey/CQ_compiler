@@ -11,7 +11,7 @@ import org.apache.arrow.vector.VectorSchemaRoot
 import org.apache.arrow.vector.ipc.ArrowReader
 import org.apache.arrow.vector.table.Table
 
-import java.io.File
+import java.io.{File, PrintWriter}
 
 object Runner {
   var options : ScanOptions = new ScanOptions(/*batchSize*/ 32768)
@@ -50,6 +50,7 @@ object Runner {
     println(res2)
 
 
+
   private def read(uri: String, file_name : String): Unit =
     try {
       loaded_datasets = loaded_datasets + (file_name.split("\\.").head -> uri.+(file_name) )
@@ -64,4 +65,16 @@ object Runner {
       List.empty
     }
   }
+
+  def write(data: List[Map[String, Any]]): Unit =
+    val headers = List("query_id", "is_acyclic", "bool_answer", "attr_x_answer", "attr_y_answer", "attr_z_answer", "attr_w_answer")
+    val filePath = System.getProperty("user.dir") + "/data/output.csv"
+    val writer = new PrintWriter(new File(filePath))
+
+    writer.println(headers.mkString(","))
+    data.foreach { row =>
+      writer.println(headers.map(col => row(col)).mkString(","))
+    }
+
+    writer.close()
 }
