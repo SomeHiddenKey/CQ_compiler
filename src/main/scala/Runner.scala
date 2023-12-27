@@ -61,11 +61,14 @@ object Runner {
           else
             res += ("bool_answer" -> 0)
           val answer = Yannakakis(conjunctiveQuery)
-          println(answer)
-          res += ("attr_x_answer" -> answer.lift(0).getOrElse(""))
-          res += ("attr_y_answer" -> answer.lift(1).getOrElse(""))
-          res += ("attr_z_answer" -> answer.lift(2).getOrElse(""))
-          res += ("attr_w_answer" -> answer.lift(3).getOrElse(""))
+          answer.foreach(row => {
+            val rowRes = res
+            rowRes += ("attr_x_answer" -> answer.lift(0).getOrElse(""))
+            rowRes += ("attr_y_answer" -> answer.lift(1).getOrElse(""))
+            rowRes += ("attr_z_answer" -> answer.lift(2).getOrElse(""))
+            rowRes += ("attr_w_answer" -> answer.lift(3).getOrElse(""))
+            data = data :+ rowRes.toMap
+          })
         case None =>
           res += ("is_acyclic" -> 0)
           res += ("bool_answer" -> "")
@@ -73,8 +76,7 @@ object Runner {
           res += ("attr_y_answer" -> "")
           res += ("attr_z_answer" -> "")
           res += ("attr_w_answer" -> "")
-
-      data = data :+ res.toMap
+          data = data :+ res.toMap
     }
     write(data)
 
