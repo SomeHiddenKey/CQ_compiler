@@ -47,9 +47,33 @@ object Runner {
    // val cqYannakakis2: ConjunctiveQuery = q("Answer(z) :- breweries(A, B, C, D, E, 'Or', G, H, I, J, K).")
     val cqYannakakis2: ConjunctiveQuery = q("Answer(z) :- breweries(A, 'Abbaye Notre Dame du St Remy', C, D, E, F, G, H, I, J, K), beers(L, A, N, O, P, Q, R, S).")
     val res2 = Yannakakis(cqYannakakis2.getHyperGraph.get)
-    println(res2)
+    //println(res2)
 
 
+    val queries: List[String] = List(
+      "Answer(d) :- Beers(u1, x, u2, 0.07, u3, u4, y, u5), Styles(u6, z, y), Categories(z, u7), Locations(u9, x, u9, u10, u11), Breweries(x, u12, u13, u14, u15, u16, u17, u18, u13, u14, u15).",
+      //   "Answer(x, y, z) :- Breweries(w, x,'Westmalle', u1, u2, u3, u4, u5, u6 ,u7 ,u8), Locations(u9, w, y, z, u10).",
+      //   "Answer(x, y, z) :- Beers(u1, u2, z, u3, u4, u5, x, u6), Styles(u7, y, x), Categories(y, z).",
+      //   "Answer(x, y, z, w) :- Beers(u1, v, x, '0.05', '18', u2, 'Vienna Lager', u3), Locations(u4, v, y, z, w).",
+      //   "Answer(x, y, z, w) :- Beers(u1, x, u2, '0.06', u3, u4, y, u5), Styles(u6, z, y), Categories(z, w), Locations(u8, x, u9, u10, u11), Breweries(x, u12, u13, u14, u15, u16, u17, u18, u13, u14, u15)."
+    )
+
+    var data : List[Map[String, Any]] = List.empty
+
+    for ((query, index) <- queries.zipWithIndex) {
+      val res = scala.collection.mutable.Map[String, Any]("query_id" -> index)
+      val conjunctiveQuery: ConjunctiveQuery = q(query)
+      conjunctiveQuery.getHyperGraph match
+        case Some(_) => res += ("is_acyclic" -> 0)
+        case None => res += ("is_acyclic" -> 1)
+      res += ("bool_answer" -> Yannakakis.YannakakisEvalBoolean(conjunctiveQuery.getHyperGraph.get.roots.head))
+      res += ("attr_x_answer" -> "")
+      res += ("attr_y_answer" -> "")
+      res += ("attr_z_answer" -> "")
+      res += ("attr_w_answer" -> "")
+      data = data :+ res.toMap
+    }
+    write(data)
 
   private def read(uri: String, file_name : String): Unit =
     try {
@@ -66,7 +90,7 @@ object Runner {
     }
   }
 
-  def write(data: List[Map[String, Any]]): Unit =
+  private def write(data: List[Map[String, Any]]): Unit =
     val headers = List("query_id", "is_acyclic", "bool_answer", "attr_x_answer", "attr_y_answer", "attr_z_answer", "attr_w_answer")
     val filePath = System.getProperty("user.dir") + "/data/output.csv"
     val writer = new PrintWriter(new File(filePath))
