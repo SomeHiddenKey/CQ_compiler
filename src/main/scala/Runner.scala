@@ -19,14 +19,12 @@ object Runner {
   var loaded_datasets : Map[String, String] = Map()
 
   @main def start(): Unit =
-   // println("file:///" + System.getProperty("user.dir").replace(" ", "%20"))
     val files = listFilesInDirectory(System.getProperty("user.dir") + s"/data/")
     for (file <- files)
       read("file:///" + System.getProperty("user.dir").replace(" ", "%20") + "/data/", file)
 
     val q: QueryParser = QueryParser(loaded_datasets)
     val cq : ConjunctiveQuery = q("Answer(z, 5) :- beers(A, B), location(B, C).")
-   // println(cq.getHyperGraph)
     val cq1 : ConjunctiveQuery = q("Answer(z, 5) :- beers(a, 166, a, Dee_56jj, E, F, G, G).")
     //Yannakakis.qs(cq1.body.head)
    // println(cq1.getHyperGraph)
@@ -41,7 +39,7 @@ object Runner {
     val cq6 : ConjunctiveQuery = q("Answers(r) :- beers(C), beers(B).")
 
     val cqYannakakis : ConjunctiveQuery = q("Answer(B, E) :- breweries(3, B, C, D, E, F, G, 'Belgium', I, J, K).")
-    println(Yannakakis(cqYannakakis))
+    //println(Yannakakis(cqYannakakis))
 
 
    // val cqYannakakis2: ConjunctiveQuery = q("Answer(z) :- breweries(A, B, C, D, E, 'Or', G, H, I, J, K).")
@@ -49,13 +47,14 @@ object Runner {
    // val res2 = Yannakakis(cqYannakakis2)
    // println(res2)
 
+    println(Yannakakis(q("Answer(x, y, z) :- Breweries(w, x,'Westmalle', u1, u2, u3, u4, u5, u6 ,u7 ,u8), Locations(u9, w, y, z, u10).")))
 
     val queries: List[String] = List(
-     // "Answer() :- beers(u1, x, u2, 0.07, u3, u4, y, u5), styles(u6, z, y), categories(z, u7), locations(u9, x, u9, u10, u11), breweries(x, u12, u13, u14, u15, u16, u17, u18, u13, u14, u15).",
-     //    "Answer(x, y, z) :- Breweries(w, x,'Westmalle', u1, u2, u3, u4, u5, u6 ,u7 ,u8), Locations(u9, w, y, z, u10).",
-      //   "Answer(x, y, z) :- Beers(u1, u2, z, u3, u4, u5, x, u6), Styles(u7, y, x), Categories(y, z).",
-      //   "Answer(x, y, z, w) :- Beers(u1, v, x, '0.05', '18', u2, 'Vienna Lager', u3), Locations(u4, v, y, z, w).",
-       //  "Answer(x, y, z, w) :- Beers(u1, x, u2, '0.06', u3, u4, y, u5), Styles(u6, z, y), Categories(z, w), Locations(u8, x, u9, u10, u11), Breweries(x, u12, u13, u14, u15, u16, u17, u18, u13, u14, u15)."
+      "Answer() :- beers(u1, x, u2, 0.07, u3, u4, y, u5), styles(u6, z, y), categories(z, u7), locations(u9, x, u9, u10, u11), breweries(x, u12, u13, u14, u15, u16, u17, u18, u13, u14, u15).",
+      "Answer(x, y, z) :- Breweries(w, x,'Westmalle', u1, u2, u3, u4, u5, u6 ,u7 ,u8), Locations(u9, w, y, z, u10).",
+      "Answer(x, y, z) :- Beers(u1, u2, z, u3, u4, u5, x, u6), Styles(u7, y, x), Categories(y, z).",
+      "Answer(x, y, z, w) :- Beers(u1, v, x, 0.05, 18, u2, 'Vienna Lager', u3), Locations(u4, v, y, z, w).",
+      "Answer(x, y, z, w) :- Beers(u1, x, u2, 0.06, u3, u4, y, u5), Styles(u6, z, y), Categories(z, w), Locations(u8, x, u9, u10, u11), Breweries(x, u12, u13, u14, u15, u16, u17, u18, u13, u14, u15)."
     )
 
     var data : List[Map[String, Any]] = List.empty
@@ -63,24 +62,31 @@ object Runner {
     for ((query, index) <- queries.zipWithIndex) {
       val res = scala.collection.mutable.Map[String, Any]("query_id" -> (index + 1))
       val conjunctiveQuery: ConjunctiveQuery = q(query)
-   //   println(conjunctiveQuery.getHyperGraph.get.nodes)
       conjunctiveQuery.getHyperGraph match
-        case Some(_) => res += ("is_acyclic" -> 0)
-        case None => res += ("is_acyclic" -> 1)
+        case Some(_) => {
+          res += ("is_acyclic" -> 1)
+          if conjunctiveQuery.head.terms.nonEmpty then
+            res += ("bool_answer" -> "")
+          else if Yannakakis.YannakakisEvalBoolean(conjunctiveQuery.getHyperGraph.get.roots.head) then
+            res += ("bool_answer" -> 1)
+          else
+            res += ("bool_answer" -> 0)
+          val answer = Yannakakis(conjunctiveQuery)
+          println(answer)
+          res += ("attr_x_answer" -> answer.lift(0).getOrElse(""))
+          res += ("attr_y_answer" -> answer.lift(1).getOrElse(""))
+          res += ("attr_z_answer" -> answer.lift(2).getOrElse(""))
+          res += ("attr_w_answer" -> answer.lift(3).getOrElse(""))
+        }
+        case None => {
+          res += ("is_acyclic" -> 0)
+          res += ("bool_answer" -> "")
+          res += ("attr_x_answer" -> "")
+          res += ("attr_y_answer" -> "")
+          res += ("attr_z_answer" -> "")
+          res += ("attr_w_answer" -> "")
+        }
 
-      if Yannakakis.YannakakisEvalBoolean(conjunctiveQuery.getHyperGraph.get.roots.head) then
-        println("true")
-        res += ("bool_answer" -> 1)
-        res += ("attr_x_answer" -> "")
-        res += ("attr_y_answer" -> "")
-        res += ("attr_z_answer" -> "")
-        res += ("attr_w_answer" -> "")
-      else
-        res += ("bool_answer" -> 0)
-        res += ("attr_x_answer" -> "")
-        res += ("attr_y_answer" -> "")
-        res += ("attr_z_answer" -> "")
-        res += ("attr_w_answer" -> "")
       data = data :+ res.toMap
     }
     write(data)
