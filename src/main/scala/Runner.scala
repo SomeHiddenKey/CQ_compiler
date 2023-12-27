@@ -30,7 +30,7 @@ object Runner {
     val cq1 : ConjunctiveQuery = q("Answer(z, 5) :- beers(a, 166, a, Dee_56jj, E, F, G, G).")
     //Yannakakis.qs(cq1.body.head)
    // println(cq1.getHyperGraph)
-    val cq2 : ConjunctiveQuery = q("Answer(z, 5) :- beers(A, B), beers(A, Z), beers(A, B, C), beers(B, C), beers(C, A).")
+    val cq2 : ConjunctiveQuery = q("Answer() :- Beers(u1, x, u2, 0.07, u3, u4, y, u5), Styles(u6, z, y), Categories(z, u7), Locations(u9, x, u9, u10, u11), Breweries(x, u12, u13, u14, u15, u16, u17, u18, u13, u14, u15).")
    // println(cq2.getHyperGraph)
     val cq3: ConjunctiveQuery = q("Answer(z, 5) :- beers(A, B), Beers(B, C), Beers(C, A), Beers(A, Z).")
    // println(cq3.getHyperGraph)

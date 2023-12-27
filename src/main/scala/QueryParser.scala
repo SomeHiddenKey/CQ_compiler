@@ -12,7 +12,7 @@ class QueryParser(loaded_datasets : Map[String, String]) extends RegexParsers {
     case head ~ body => ConjunctiveQuery(head, body)
   }
   private def relationNameParser: Parser[String] = """[a-zA-Z]+""".r
-  private def termParser: Parser[List[Term]] = rep1sep( parseTermFloat | parseTermInt | parseTermString | parseVariable, ",")
+  private def termParser: Parser[List[Term]] = repsep( parseTermFloat | parseTermInt | parseTermString | parseVariable, ",")
   private def parseTermInt: Parser[Term] = """0|(-?[1-9]\d*)\b""".r ^^ (c => Constant[Int](c.toInt))
   private def parseTermString: Parser[Term] = parseTermStringQuotedSingle | parseTermStringQuotedDouble
 
@@ -20,7 +20,7 @@ class QueryParser(loaded_datasets : Map[String, String]) extends RegexParsers {
   private def parseTermStringQuotedDouble: Parser[Term] = '"' ~> """[a-zA-Z][^\n\t"]*\b""".r <~ '"' ^^ (c => Constant[Text](Text(c)))
 
   private def parseTermFloat: Parser[Term] = """-?\d+\.\d*\b""".r ^^ (c => Constant[Float](c.toFloat))
-  private def parseVariable: Parser[Variable] = """[a-zA-Z][a-zA-Z1-9_]*""".r ^^ (c => Variable(c))
+  private def parseVariable: Parser[Variable] = """[a-zA-Z][a-zA-Z0-9_]*""".r ^^ (c => Variable(c))
   private def headParser: Parser[Head] = atomParser <~ ":-" ^^ (atom => new Head(atom.relationName, atom.terms))
   private def bodyParser: Parser[Set[Atom]] = rep1sep(atomParser, ",") <~ "." ^^ (atoms => atoms.toSet)
 
