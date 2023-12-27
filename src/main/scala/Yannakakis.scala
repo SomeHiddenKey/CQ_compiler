@@ -1,14 +1,11 @@
 import org.apache.arrow.dataset.file.FileSystemDatasetFactory
 import org.apache.arrow.dataset.file.FileFormat
 import org.apache.arrow.dataset.jni.NativeMemoryPool
-import org.apache.arrow.dataset.scanner.ScanOptions
-import org.apache.arrow.dataset.scanner.Scanner
 import org.apache.arrow.dataset.source.Dataset
 import org.apache.arrow.dataset.source.DatasetFactory
 import org.apache.arrow.vector.FieldVector
 import org.apache.arrow.dataset.scanner.ScanOptions
 import org.apache.arrow.dataset.scanner.Scanner
-import org.apache.arrow.dataset.source.Dataset
 import org.apache.arrow.memory.{BufferAllocator, RootAllocator}
 import org.apache.arrow.vector.ipc.ArrowReader
 import org.apache.arrow.vector.table.{Row, Table}
@@ -17,13 +14,13 @@ import scala.jdk.CollectionConverters.*
 import org.apache.arrow.vector.util.Text
 
 object Yannakakis {
-  def getOrDefault(x: AnyRef) : AnyRef =
+  private def getOrDefault(x: AnyRef) : AnyRef =
     x match {
       case null => Text("")
       case e => e
     }
 
-  def qs(a: Atom): List[List[AnyRef]] =
+  private def qs(a: Atom): List[List[AnyRef]] =
     var values : List[List[AnyRef]] = List[List[AnyRef]]()
 
     a.dataset match {
@@ -101,14 +98,14 @@ object Yannakakis {
       v2 <- val2
     } yield v1 ::: v2
 
-  private def cartesianjoin(values1: List[List[AnyRef]], values2: List[List[AnyRef]]): List[List[AnyRef]] =
+  private def cartesianJoin(values1: List[List[AnyRef]], values2: List[List[AnyRef]]): List[List[AnyRef]] =
     for {
       v1 <- values1
       v2 <- values2
     } yield v1.appendedAll(v2)
 
 
-  def QsEval(n: Node): List[List[AnyRef]] =
+  private def QsEval(n: Node): List[List[AnyRef]] =
     n.value = qs(n.atom) // calculate qs
     n.children.foreach(child => //for all children i
       n.value = semiJoin(n.value, QsEval(child), n.atom, child.atom) //Qs(D) ∶= ⋂ ( qs(D) ⋉ Qsi(D) )
@@ -117,7 +114,7 @@ object Yannakakis {
 
   private def AsEval(n: Node): List[List[AnyRef]] =
     n.children.foreach(child => child.value = semiJoin(child.value, n.value, child.atom, n.atom)) //As′(D) ∶= Qs′(D) ⋉ As(D)
-    n.children.foreach(child => AsEval(child)) //recursively do As evalution from root to leaves
+    n.children.foreach(child => AsEval(child)) //recursively do As evaluation from root to leaves
     n.children.foreach(child => n.value = fullJoin(n.value, child.value, n.atom, child.atom)) // Os(D) ∶= π[s∪x] ( Os(D) ⨝ Osj(D) )
     n.value //answer Or(D)
 
@@ -135,7 +132,7 @@ object Yannakakis {
         if c.head.terms.isEmpty then
           if graph.roots.forall(root => YannakakisEvalBoolean(root)) then List[List[AnyRef]](List[AnyRef]()) else List[List[AnyRef]]()
         else
-          val res = graph.roots.tail.foldRight[List[List[AnyRef]]](YannakakisEval(graph.roots.head))((newRoot, values) => cartesianjoin(YannakakisEval(newRoot), values))
+          val res = graph.roots.tail.foldRight[List[List[AnyRef]]](YannakakisEval(graph.roots.head))((newRoot, values) => cartesianJoin(YannakakisEval(newRoot), values))
           projection(c, res)
       case None => null
     }

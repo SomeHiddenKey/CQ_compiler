@@ -1,7 +1,5 @@
-import org.apache.arrow.dataset.source.Dataset
 import scala.util.parsing.combinator.RegexParsers
 import org.apache.arrow.vector.util.Text
-import scala.util.parsing.combinator.*
 
 class QueryParser(loaded_datasets : Map[String, String]) extends RegexParsers {
   private def atomParser: Parser[Atom] = relationNameParser ~ "(" ~ termParser ~ ")" ^^ {

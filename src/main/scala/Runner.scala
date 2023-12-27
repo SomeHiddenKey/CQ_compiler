@@ -1,15 +1,4 @@
-import org.apache.arrow.dataset.file.FileFormat
-import org.apache.arrow.dataset.file.FileSystemDatasetFactory
-import org.apache.arrow.dataset.jni.NativeMemoryPool
 import org.apache.arrow.dataset.scanner.ScanOptions
-import org.apache.arrow.dataset.scanner.Scanner
-import org.apache.arrow.dataset.source.Dataset
-import org.apache.arrow.dataset.source.DatasetFactory
-import org.apache.arrow.memory.BufferAllocator
-import org.apache.arrow.memory.RootAllocator
-import org.apache.arrow.vector.VectorSchemaRoot
-import org.apache.arrow.vector.ipc.ArrowReader
-import org.apache.arrow.vector.table.Table
 
 import java.io.{File, PrintWriter}
 
@@ -63,7 +52,7 @@ object Runner {
       val res = scala.collection.mutable.Map[String, Any]("query_id" -> (index + 1))
       val conjunctiveQuery: ConjunctiveQuery = q(query)
       conjunctiveQuery.getHyperGraph match
-        case Some(_) => {
+        case Some(_) =>
           res += ("is_acyclic" -> 1)
           if conjunctiveQuery.head.terms.nonEmpty then
             res += ("bool_answer" -> "")
@@ -77,15 +66,13 @@ object Runner {
           res += ("attr_y_answer" -> answer.lift(1).getOrElse(""))
           res += ("attr_z_answer" -> answer.lift(2).getOrElse(""))
           res += ("attr_w_answer" -> answer.lift(3).getOrElse(""))
-        }
-        case None => {
+        case None =>
           res += ("is_acyclic" -> 0)
           res += ("bool_answer" -> "")
           res += ("attr_x_answer" -> "")
           res += ("attr_y_answer" -> "")
           res += ("attr_z_answer" -> "")
           res += ("attr_w_answer" -> "")
-        }
 
       data = data :+ res.toMap
     }
@@ -97,7 +84,7 @@ object Runner {
     }
     catch case e: Exception => e.printStackTrace()
 
-  def listFilesInDirectory(directoryPath: String): List[String] = {
+  private def listFilesInDirectory(directoryPath: String): List[String] = {
     val directory = new File(directoryPath)
     if (directory.exists && directory.isDirectory) {
       directory.listFiles.filter(_.isFile).map(_.getName).toList
