@@ -45,7 +45,7 @@ object Runner {
 
 
    // val cqYannakakis2: ConjunctiveQuery = q("Answer(z) :- breweries(A, B, C, D, E, 'Or', G, H, I, J, K).")
-    val cqYannakakis2: ConjunctiveQuery = q("Answer() :- beers(u1, x, u2, 0.07, u3, u4, y, u5), styles(u6, z, y), categories(z, u7), locations(u9, x, u9, u10, u11), breweries(x, u12, u13, u14, u15, u16, u17, u18, u13, u14, u15).")
+    val cqYannakakis2: ConjunctiveQuery = q("Answer(x, y, z) :- Breweries(w, x,'Westmalle', u1, u2, u3, u4, u5, u6 ,u7 ,u8), Locations(u9, w, y, z, u10).")
     val res2 = Yannakakis(cqYannakakis2)
     //println(res2)
 

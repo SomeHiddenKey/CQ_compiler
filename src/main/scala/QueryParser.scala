@@ -6,7 +6,7 @@ import scala.util.parsing.combinator.*
 class QueryParser(loaded_datasets : Map[String, String]) extends RegexParsers {
   private def atomParser: Parser[Atom] = relationNameParser ~ "(" ~ termParser ~ ")" ^^ {
     case head_name ~ _ ~ b ~ _ =>
-      new Atom(head_name, b, loaded_datasets.get(head_name))
+      new Atom(head_name, b, loaded_datasets.get(head_name.toLowerCase))
   }
   private def queryParser: Parser[ConjunctiveQuery] = headParser ~ bodyParser ^^ {
     case head ~ body => ConjunctiveQuery(head, body)
