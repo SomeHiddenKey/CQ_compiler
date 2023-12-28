@@ -167,9 +167,9 @@ object Yannakakis {
               columns = columns.appendedAll(newcolumns)
               cartesianJoin(intermediate_result, new_result)
             })
-         /* if columns == c.head.terms then
+          if columns == c.head.terms then
             output_result
-          else*/
+          else
             projection(c.head.terms, columns, output_result)
       case None => null
     }
@@ -178,7 +178,7 @@ object Yannakakis {
     println(headTerms == cols)
     println("headterms: " + headTerms)
     println("cols: " + cols)
-    println("res: " + res)
+    println("res: " + res(0))
     //   println("wanted: " + wanted)
     //val bodyList = cols.flatMap(el => el.terms)
     //   println("bodyList: " + bodyList)
