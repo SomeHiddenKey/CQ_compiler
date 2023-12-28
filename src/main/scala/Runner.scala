@@ -46,7 +46,9 @@ object Runner {
       "Answer(x, y, z, w) :- Beers(u1, x, u2, 0.06, u3, u4, y, u5), Styles(u6, z, y), Categories(z, w), Locations(u8, x, u9, u10, u11), Breweries(x, u12, u13, u14, u15, u16, u17, u18, u13, u14, u15)."
     )
 
-    val y : ConjunctiveQuery = q("Answer(i) :- breweries(v, 'Aass Brewery', b, c, d, e, f, g, h, i, j), beers(k, v, l, m, n, o, p, q), locations(r, v, s, t, u).")
+    //val y : ConjunctiveQuery = q("Answer(k, h, k, s) :- breweries(v, 'Aass Brewery', b, c, d, e, f, g, h, i, j), beers(k, v, l, m, n, o, p, q), locations(r, v, s, t, u).")
+    val y : ConjunctiveQuery = q("Answer(s, h, k, v, c, l, d, p,t, m, u) :- breweries(v, 'Aass Brewery', b, c, d, e, f, g, h, i, j), beers(k, v, l, m, n, o, p, q), locations(r, v, s, t, u).")
+
     println(Yannakakis(y))
 
     var data : List[Map[String, Any]] = List.empty

@@ -57,8 +57,8 @@ object Yannakakis {
               //check if all index's with constant values have that value
               (constants_filter.forall((i, v) => getOrDefault(e.getExtensionType(i)) == v)
                 &&
-              //check if all index's with the same variable name have the same value
-              variable_filter.forall((_, v) => v.tail.forall((_,i) => getOrDefault(e.getExtensionType(v.head._2)) == getOrDefault(e.getExtensionType(i)))))
+                //check if all index's with the same variable name have the same value
+                variable_filter.forall((_, v) => v.tail.forall((_,i) => getOrDefault(e.getExtensionType(v.head._2)) == getOrDefault(e.getExtensionType(i)))))
             then
               var rowValues: List[AnyRef] = List[AnyRef]()
               for i <- 0 until size do
@@ -97,7 +97,7 @@ object Yannakakis {
       v1 <- val1
       v2 <- val2
     } yield v1 ::: v2
-    (res, child_terms ++ parent_terms)
+    (res, parent_terms ++ child_terms)
 
   private def cartesianJoin(values1: List[List[AnyRef]], values2: List[List[AnyRef]]): List[List[AnyRef]] =
     for {
@@ -121,16 +121,39 @@ object Yannakakis {
       child_terms = AsEval(child) //recursively do As evaluation from root to leaves
       fullJoin(n.value, child.value, parent_terms, child_terms) match {case (a,b) => n.value = a; parent_terms = b}  // Os(D) ∶= π[s∪x] ( Os(D) ⨝ Osj(D) )
     })
-    parent_terms// updated joined terms list
+    parent_terms // updated joined terms list
+  /*
+    private def YannakakisEval(root: Node): List[List[AnyRef]] =
+      QsEval(root)
+      AsEval(root)
+      root.value
+      */
 
-  private def YannakakisEval(root: Node): List[List[AnyRef]] =
-    QsEval(root)
-    AsEval(root)
-    root.value
 
   def YannakakisEvalBoolean(root: Node): Boolean =
     QsEval(root)
     root.value.nonEmpty
+  /*
+    def apply(c : ConjunctiveQuery): List[List[AnyRef]] =
+      c.getHyperGraph match {
+        case Some(graph) =>
+          if c.head.terms.isEmpty then
+            if graph.roots.forall(root => YannakakisEvalBoolean(root)) then List[List[AnyRef]](List[AnyRef]()) else List[List[AnyRef]]()
+          else
+            val res = graph.roots.tail.foldRight[List[List[AnyRef]]](YannakakisEval(graph.roots.head))((newRoot, values) => cartesianJoin(YannakakisEval(newRoot), values))
+        //    println("res:" + graph.roots.head.atom)
+            projection(c, res)
+           // res
+        case None => null
+      }
+   */
+
+  private def YannakakisEval(root: Node, head: Head): (List[List[AnyRef]], List[Term]) =
+    QsEval(root)
+    val res = AsEval(root)
+    val bodyIndices = head.terms.map(element => res.indexOf(element))
+    val result = root.value.map(row => bodyIndices.collect { case i if i >= 0 && i < row.length => row(i) })
+    (result, head.terms)
 
   def apply(c : ConjunctiveQuery): List[List[AnyRef]] =
     c.getHyperGraph match {
@@ -138,21 +161,33 @@ object Yannakakis {
         if c.head.terms.isEmpty then
           if graph.roots.forall(root => YannakakisEvalBoolean(root)) then List[List[AnyRef]](List[AnyRef]()) else List[List[AnyRef]]()
         else
-          val res = graph.roots.tail.foldRight[List[List[AnyRef]]](YannakakisEval(graph.roots.head))((newRoot, values) => cartesianJoin(YannakakisEval(newRoot), values))
-          projection(c, res)
-         // res
+          var (output_result, columns) = YannakakisEval(graph.roots.head, c.head)
+          output_result = graph.roots.tail.foldRight[List[List[AnyRef]]](output_result)((newRoot, intermediate_result) =>
+            YannakakisEval(newRoot, c.head) match { case (new_result, newcolumns) =>
+              columns = columns.appendedAll(newcolumns)
+              cartesianJoin(intermediate_result, new_result)
+            })
+         /* if columns == c.head.terms then
+            output_result
+          else*/
+            projection(c.head.terms, columns, output_result)
       case None => null
     }
 
-  private def projection(query: ConjunctiveQuery, res: List[List[AnyRef]]): List[List[AnyRef]] =
-    val wanted = query.head.terms
-    println("wanted: " + wanted)
-    val bodyList = query.body.toList.flatMap(el => el.terms)
-    println("bodyList: " + bodyList)
-    val bodyIndices = wanted.map(element => bodyList.indexOf(element))
-    println("bodyIndices: " + bodyIndices)
-    println(res)
-    res.map(row => bodyIndices.collect {case i if i >= 0 && i < row.length => row(i)})
+  def projection(headTerms: List[Term], cols: List[Term], res: List[List[AnyRef]]): List[List[AnyRef]] =
+    println(headTerms == cols)
+    println("headterms: " + headTerms)
+    println("cols: " + cols)
+    println("res: " + res)
+    //   println("wanted: " + wanted)
+    //val bodyList = cols.flatMap(el => el.terms)
+    //   println("bodyList: " + bodyList)
+    //val bodyIndices = headTerms.map(element => bodyList.indexOf(element))
+    //   println("bodyIndices: " + bodyIndices)
+    //   println(res)
+    //res.map(row => bodyIndices.collect {case i if i >= 0 && i < row.length => row(i)})
+    null
 
-  //in case we have multiple roots, we just full cartesian join everything given that the graphs are fully independant anyways
+
+  //in case we have multiple roots, we just full cartesian join everything given that the graphs are fully independent anyways
 }
