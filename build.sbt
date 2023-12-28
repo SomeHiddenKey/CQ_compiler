@@ -12,6 +12,7 @@ lazy val root = (project in file("."))
       "org.apache.arrow" % "arrow-dataset" % "13.0.0",
       "org.apache.arrow" % "arrow-memory-netty" % "13.0.0",
       "org.scala-lang.modules" %% "scala-parser-combinators" % "2.2.0",
-      "org.immutables" % "value" % "2.9.2"
+      "org.immutables" % "value" % "2.9.2",
+      "org.scalatest" %% "scalatest" % "3.2.17" % "test"
     )
   )
