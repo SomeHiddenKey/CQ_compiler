@@ -14,8 +14,8 @@ class QueryParser(loaded_datasets : Map[String, String]) extends RegexParsers {
   private def parseTermInt: Parser[Term] = """0|(-?[1-9]\d*)\b""".r ^^ (c => Constant[Int](c.toInt))
   private def parseTermString: Parser[Term] = parseTermStringQuotedSingle | parseTermStringQuotedDouble
 
-  private def parseTermStringQuotedSingle: Parser[Term] = "'" ~> """[a-zA-Z][^\n\t']*\b""".r <~ "'" ^^ (c => Constant[Text](Text(c)))
-  private def parseTermStringQuotedDouble: Parser[Term] = '"' ~> """[a-zA-Z][^\n\t"]*\b""".r <~ '"' ^^ (c => Constant[Text](Text(c)))
+  private def parseTermStringQuotedSingle: Parser[Term] = "'" ~> """[a-zA-Z][^\n\t']*""".r <~ "'" ^^ (c => Constant[Text](Text(c)))
+  private def parseTermStringQuotedDouble: Parser[Term] = '"' ~> """[a-zA-Z][^\n\t"]*""".r <~ '"' ^^ (c => Constant[Text](Text(c)))
 
   private def parseTermDouble: Parser[Term] = """-?\d+\.\d*\b""".r ^^ (c => Constant[Double](c.toDouble))
   private def parseVariable: Parser[Variable] = """[a-zA-Z][a-zA-Z0-9_]*""".r ^^ (c => Variable(c))
