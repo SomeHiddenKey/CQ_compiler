@@ -49,13 +49,13 @@ object Runner {
     }
     write(data)
 
-  private def read(uri: String, file_name : String): Unit =
+  def read(uri: String, file_name : String): Unit =
     try {
       loaded_datasets = loaded_datasets + (file_name.split("\\.").head -> uri.+(file_name) )
     }
     catch case e: Exception => e.printStackTrace()
 
-  private def listFilesInDirectory(directoryPath: String): List[String] = {
+  def listFilesInDirectory(directoryPath: String): List[String] = {
     val directory = new File(directoryPath)
     if (directory.exists && directory.isDirectory) {
       directory.listFiles.filter(_.isFile).map(_.getName).toList
