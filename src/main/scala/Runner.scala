@@ -41,36 +41,46 @@ object Runner {
     val queries: List[String] = List(
       "Answer() :- beers(u1, x, u2, 0.07, u3, u4, y, u5), styles(u6, z, y), categories(z, u7), locations(u9, x, u9, u10, u11), breweries(x, u12, u13, u14, u15, u16, u17, u18, u13, u14, u15).",
       "Answer(x, y, z) :- Breweries(w, x,'Westmalle', u1, u2, u3, u4, u5, u6 ,u7 ,u8), Locations(u9, w, y, z, u10).",
-     // "Answer(x, y, z) :- Beers(u1, u2, z, u3, u4, u5, x, u6), Styles(u7, y, x), Categories(y, z).",
+      "Answer(x, y, z) :- Beers(u1, u2, z, u3, u4, u5, x, u6), Styles(u7, y, x), Categories(y, z).",
       "Answer(x, y, z, w) :- Beers(u1, v, x, 0.05, 18, u2, 'Vienna Lager', u3), Locations(u4, v, y, z, w).",
       "Answer(x, y, z, w) :- Beers(u1, x, u2, 0.06, u3, u4, y, u5), Styles(u6, z, y), Categories(z, w), Locations(u8, x, u9, u10, u11), Breweries(x, u12, u13, u14, u15, u16, u17, u18, u13, u14, u15)."
     )
-
-    //val y : ConjunctiveQuery = q("Answer(k, h, k, s) :- breweries(v, 'Aass Brewery', b, c, d, e, f, g, h, i, j), beers(k, v, l, m, n, o, p, q), locations(r, v, s, t, u).")
-    val y : ConjunctiveQuery = q("Answer( u2, v, u4, u3) :- breweries(v, 'Aass Brewery', b, c, d, e, f, g, h, i, j), beers(k, v, l, m, n, o, p, q), locations(r, v, s, t, u), styles(1, u2, u3), categories(u2, u4).")
-//List(1, 4, British Ale, Classic English-Style Pale Ale)
-    println(Yannakakis(y))
-
     var data : List[Map[String, Any]] = List.empty
 
     for ((query, index) <- queries.zipWithIndex) {
+      println()
+      println()
+      println("query: " + query)
       val res = scala.collection.mutable.Map[String, Any]("query_id" -> (index + 1))
       val conjunctiveQuery: ConjunctiveQuery = q(query)
       conjunctiveQuery.getHyperGraph match
-        case None => //acyclic
+        case Some(_) => //acyclic
+          println("acyclic")
           res += ("is_acyclic" -> 1)
           if conjunctiveQuery.head.terms.nonEmpty then
+            println("not boolean")
             res += ("bool_answer" -> "")
             val answer = Yannakakis(conjunctiveQuery)
-            answer.foreach(row => {
-              val rowRes = res
-              rowRes += ("attr_x_answer" -> answer.lift(0).getOrElse(""))
-              rowRes += ("attr_y_answer" -> answer.lift(1).getOrElse(""))
-              rowRes += ("attr_z_answer" -> answer.lift(2).getOrElse(""))
-              rowRes += ("attr_w_answer" -> answer.lift(3).getOrElse(""))
-              data = data :+ rowRes.toMap
-            })
+            println("answer: " + answer)
+            if answer.nonEmpty then
+              println("answer not empty")
+              answer.foreach(row => {
+                val rowRes = res
+                rowRes += ("attr_x_answer" -> row.head)
+                rowRes += ("attr_y_answer" -> row(1))
+                rowRes += ("attr_z_answer" -> row(2))
+                rowRes += ("attr_w_answer" -> row(3))
+                data = data :+ rowRes.toMap
+              })
+            else
+              println("answer empty")
+              res += ("attr_x_answer" -> "")
+              res += ("attr_y_answer" -> "")
+              res += ("attr_z_answer" -> "")
+              res += ("attr_w_answer" -> "")
+              data = data :+ res.toMap
           else if Yannakakis.YannakakisEvalBoolean(conjunctiveQuery.getHyperGraph.get.roots.head) then
+            println("boolean")
             res += ("bool_answer" -> 1)
             res += ("attr_x_answer" -> "")
             res += ("attr_y_answer" -> "")
@@ -78,13 +88,15 @@ object Runner {
             res += ("attr_w_answer" -> "")
             data = data :+ res.toMap
           else
+            println("boolean")
             res += ("bool_answer" -> 0)
             res += ("attr_x_answer" -> "")
             res += ("attr_y_answer" -> "")
             res += ("attr_z_answer" -> "")
             res += ("attr_w_answer" -> "")
             data = data :+ res.toMap
-        case Some(_) => //cyclic
+        case None => //cyclic
+          println("cyclic")
           res += ("is_acyclic" -> 0)
           res += ("bool_answer" -> "")
           res += ("attr_x_answer" -> "")

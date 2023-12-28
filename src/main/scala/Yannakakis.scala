@@ -122,31 +122,10 @@ object Yannakakis {
       fullJoin(n.value, child.value, parent_terms, child_terms) match {case (a,b) => n.value = a; parent_terms = b}  // Os(D) ∶= π[s∪x] ( Os(D) ⨝ Osj(D) )
     })
     parent_terms // updated joined terms list
-  /*
-    private def YannakakisEval(root: Node): List[List[AnyRef]] =
-      QsEval(root)
-      AsEval(root)
-      root.value
-      */
-
 
   def YannakakisEvalBoolean(root: Node): Boolean =
     QsEval(root)
     root.value.nonEmpty
-  /*
-    def apply(c : ConjunctiveQuery): List[List[AnyRef]] =
-      c.getHyperGraph match {
-        case Some(graph) =>
-          if c.head.terms.isEmpty then
-            if graph.roots.forall(root => YannakakisEvalBoolean(root)) then List[List[AnyRef]](List[AnyRef]()) else List[List[AnyRef]]()
-          else
-            val res = graph.roots.tail.foldRight[List[List[AnyRef]]](YannakakisEval(graph.roots.head))((newRoot, values) => cartesianJoin(YannakakisEval(newRoot), values))
-        //    println("res:" + graph.roots.head.atom)
-            projection(c, res)
-           // res
-        case None => null
-      }
-   */
 
   private def YannakakisEval(root: Node, head: Head): (List[List[AnyRef]], List[Term]) =
     QsEval(root)
@@ -162,8 +141,6 @@ object Yannakakis {
           if graph.roots.forall(root => YannakakisEvalBoolean(root)) then List[List[AnyRef]](List[AnyRef]()) else List[List[AnyRef]]()
         else
           var (output_result, columns) = YannakakisEval(graph.roots.head, c.head)
-          println("output_result: " + output_result)
-          println("columns: " + columns)
           output_result = graph.roots.tail.foldRight[List[List[AnyRef]]](output_result)((newRoot, intermediate_result) =>
             YannakakisEval(newRoot, c.head) match { case (new_result, newcolumns) =>
               columns = columns.appendedAll(newcolumns)
