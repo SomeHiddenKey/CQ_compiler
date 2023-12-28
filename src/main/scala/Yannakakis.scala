@@ -75,28 +75,29 @@ object Yannakakis {
     val dict2: Map[AnyRef, List[List[AnyRef]]] = values2.groupMap(_(atom2.terms.indexOf(common.head)))(identity)  // create dictionary of rows in values2 (key = the element which both value-lists had in common)
     values1.filter(row => {dict2.contains(row(atom1.terms.indexOf(common.head)))}) // only keep the elements which occur in the map
 
-  private def fullJoin(values1: List[List[AnyRef]], values2: List[List[AnyRef]], atom1: Atom, atom2: Atom): List[List[AnyRef]] =
+  private def fullJoin(values1: List[List[AnyRef]], values2: List[List[AnyRef]], parent_terms: List[Term], child_terms: List[Term]): (List[List[AnyRef]], List[Term]) =
     // values1 ⨝ values2
     // use atom for variable name schematic
-    val common = atom1.terms.intersect(atom2.terms)
-    var dict1: Map[AnyRef, List[List[AnyRef]]] = values1.groupMap(_(atom1.terms.indexOf(common.head)))(identity) // create dictionary of rows in values1 (key = the element which both value-lists had in common)
-    var dict2: Map[AnyRef, List[List[AnyRef]]] = values2.groupMap(_(atom2.terms.indexOf(common.head)))(identity) // create dictionary of rows in values2 (key = the element which both value-lists had in common)
+    val common = parent_terms.intersect(child_terms)
+    var dict1: Map[AnyRef, List[List[AnyRef]]] = values1.groupMap(_(parent_terms.indexOf(common.head)))(identity) // create dictionary of rows in values1 (key = the element which both value-lists had in common)
+    var dict2: Map[AnyRef, List[List[AnyRef]]] = values2.groupMap(_(child_terms.indexOf(common.head)))(identity) // create dictionary of rows in values2 (key = the element which both value-lists had in common)
     val allKeys = (dict1.keys ++ dict2.keys).toSet
     allKeys.foreach(key => {
       if !dict1.contains(key) then
-        val list = List.fill(atom1.terms.size)(null).updated(atom1.terms.indexOf(common.head), key)
+        val list = List.fill(parent_terms.size)(null).updated(parent_terms.indexOf(common.head), key)
         dict1 = dict1.updated(key, List(list))
       else if !dict2.contains(key) then
-        val list = List.fill(atom2.terms.size)(null).updated(atom2.terms.indexOf(common.head), key)
+        val list = List.fill(child_terms.size)(null).updated(child_terms.indexOf(common.head), key)
         dict2 = dict2.updated(key, List(list))
     })
-    for {
+    val res = for {
       key <- allKeys.toList
       val1 = dict1(key)
       val2 = dict2(key)
       v1 <- val1
       v2 <- val2
     } yield v1 ::: v2
+    (res, child_terms ++ parent_terms)
 
   private def cartesianJoin(values1: List[List[AnyRef]], values2: List[List[AnyRef]]): List[List[AnyRef]] =
     for {
@@ -112,15 +113,20 @@ object Yannakakis {
     )
     n.value
 
-  private def AsEval(n: Node): List[List[AnyRef]] =
+  private def AsEval(n: Node): List[Term] =
+    var parent_terms: List[Term] = n.atom.terms
+    var child_terms: List[Term] = List[Term]()
     n.children.foreach(child => child.value = semiJoin(child.value, n.value, child.atom, n.atom)) //As′(D) ∶= Qs′(D) ⋉ As(D)
-    n.children.foreach(child => AsEval(child)) //recursively do As evaluation from root to leaves
-    n.children.foreach(child => n.value = fullJoin(n.value, child.value, n.atom, child.atom)) // Os(D) ∶= π[s∪x] ( Os(D) ⨝ Osj(D) )
-    n.value //answer Or(D)
+    n.children.foreach(child => {
+      child_terms = AsEval(child) //recursively do As evaluation from root to leaves
+      fullJoin(n.value, child.value, parent_terms, child_terms) match {case (a,b) => n.value = a; parent_terms = b}  // Os(D) ∶= π[s∪x] ( Os(D) ⨝ Osj(D) )
+    })
+    parent_terms// updated joined terms list
 
   private def YannakakisEval(root: Node): List[List[AnyRef]] =
     QsEval(root)
     AsEval(root)
+    root.value
 
   def YannakakisEvalBoolean(root: Node): Boolean =
     QsEval(root)
@@ -134,13 +140,18 @@ object Yannakakis {
         else
           val res = graph.roots.tail.foldRight[List[List[AnyRef]]](YannakakisEval(graph.roots.head))((newRoot, values) => cartesianJoin(YannakakisEval(newRoot), values))
           projection(c, res)
+         // res
       case None => null
     }
 
   private def projection(query: ConjunctiveQuery, res: List[List[AnyRef]]): List[List[AnyRef]] =
     val wanted = query.head.terms
+    println("wanted: " + wanted)
     val bodyList = query.body.toList.flatMap(el => el.terms)
+    println("bodyList: " + bodyList)
     val bodyIndices = wanted.map(element => bodyList.indexOf(element))
+    println("bodyIndices: " + bodyIndices)
+    println(res)
     res.map(row => bodyIndices.collect {case i if i >= 0 && i < row.length => row(i)})
 
   //in case we have multiple roots, we just full cartesian join everything given that the graphs are fully independant anyways
