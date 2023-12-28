@@ -48,62 +48,28 @@ object Runner {
     var data : List[Map[String, Any]] = List.empty
 
     for ((query, index) <- queries.zipWithIndex) {
-      println()
-      println()
-      println("query: " + query)
-      val res = scala.collection.mutable.Map[String, Any]("query_id" -> (index + 1))
-      val conjunctiveQuery: ConjunctiveQuery = q(query)
-      conjunctiveQuery.getHyperGraph match
-        case Some(_) => //acyclic
-          println("acyclic")
-          res += ("is_acyclic" -> 1)
-          if conjunctiveQuery.head.terms.nonEmpty then
-            println("not boolean")
-            res += ("bool_answer" -> "")
-            val answer = Yannakakis(conjunctiveQuery)
-            println("answer: " + answer)
-            if answer.nonEmpty then
-              println("answer not empty")
+      val res = scala.collection.mutable.Map("query_id" -> (index + 1), "is_acyclic" -> 0, "bool_answer" -> "", "attr_x_answer" -> "", "attr_y_answer" -> "", "attr_z_answer" -> "", "attr_w_answer" -> "")
+
+      q(query).getHyperGraph match {
+        case Some(_) =>
+          res("is_acyclic") = 1
+          if (q(query).head.terms.nonEmpty) {
+            val answer = Yannakakis(q(query))
+            if (answer.nonEmpty) {
               answer.foreach(row => {
-                val rowRes = res
-                rowRes += ("attr_x_answer" -> row.head)
-                rowRes += ("attr_y_answer" -> row(1))
-                rowRes += ("attr_z_answer" -> row(2))
-                rowRes += ("attr_w_answer" -> row(3))
-                data = data :+ rowRes.toMap
+                data :+= (res ++ Map("bool_answer" -> "", "attr_x_answer" -> row.head, "attr_y_answer" -> row(1), "attr_z_answer" -> row(2), "attr_w_answer" -> row(3))).toMap
               })
-            else
-              println("answer empty")
-              res += ("attr_x_answer" -> "")
-              res += ("attr_y_answer" -> "")
-              res += ("attr_z_answer" -> "")
-              res += ("attr_w_answer" -> "")
-              data = data :+ res.toMap
-          else if Yannakakis.YannakakisEvalBoolean(conjunctiveQuery.getHyperGraph.get.roots.head) then
-            println("boolean")
-            res += ("bool_answer" -> 1)
-            res += ("attr_x_answer" -> "")
-            res += ("attr_y_answer" -> "")
-            res += ("attr_z_answer" -> "")
-            res += ("attr_w_answer" -> "")
-            data = data :+ res.toMap
-          else
-            println("boolean")
-            res += ("bool_answer" -> 0)
-            res += ("attr_x_answer" -> "")
-            res += ("attr_y_answer" -> "")
-            res += ("attr_z_answer" -> "")
-            res += ("attr_w_answer" -> "")
-            data = data :+ res.toMap
-        case None => //cyclic
-          println("cyclic")
-          res += ("is_acyclic" -> 0)
-          res += ("bool_answer" -> "")
-          res += ("attr_x_answer" -> "")
-          res += ("attr_y_answer" -> "")
-          res += ("attr_z_answer" -> "")
-          res += ("attr_w_answer" -> "")
-          data = data :+ res.toMap
+             } else {
+              data :+= res.toMap
+            }
+          } else if (Yannakakis.YannakakisEvalBoolean(q(query).getHyperGraph.get.roots.head)) {
+            data :+= (res ++ Map("bool_answer" -> 1)).toMap
+          } else {
+            data :+= (res ++ Map("bool_answer" -> 0)).toMap
+          }
+        case None =>
+          data :+= res.toMap
+      }
     }
     write(data)
 
