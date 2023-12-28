@@ -25,12 +25,12 @@ object Runner {
 
     for ((query, index) <- queries.zipWithIndex) {
       val res = scala.collection.mutable.Map("query_id" -> (index + 1), "is_acyclic" -> 0, "bool_answer" -> "", "attr_x_answer" -> "", "attr_y_answer" -> "", "attr_z_answer" -> "", "attr_w_answer" -> "")
-
-      q(query).getHyperGraph match {
+      val conjunctiveQuery = q(query)
+      conjunctiveQuery.getHyperGraph match {
         case Some(_) =>
           res("is_acyclic") = 1
-          if (q(query).head.terms.nonEmpty) {
-            val answer = Yannakakis(q(query))
+          if (conjunctiveQuery.head.terms.nonEmpty) {
+            val answer = Yannakakis(conjunctiveQuery)
             if (answer.nonEmpty) {
               answer.foreach(row => {
                 data :+= (res ++ Map("bool_answer" -> "", "attr_x_answer" -> row.head, "attr_y_answer" -> row(1), "attr_z_answer" -> row(2), "attr_w_answer" -> row(3))).toMap
@@ -38,7 +38,7 @@ object Runner {
              } else {
               data :+= res.toMap
             }
-          } else if (Yannakakis.YannakakisEvalBoolean(q(query).getHyperGraph.get.roots.head)) {
+          } else if (Yannakakis.YannakakisEvalBoolean(conjunctiveQuery.getHyperGraph.get.roots.head)) {
             data :+= (res ++ Map("bool_answer" -> 1)).toMap
           } else {
             data :+= (res ++ Map("bool_answer" -> 0)).toMap
