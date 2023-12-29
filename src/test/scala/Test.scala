@@ -1,5 +1,5 @@
 import Runner.listFilesInDirectory
-import conjunctive_querry.{ConjunctiveQuery, Term, Variable}
+import conjunctive_query.{ConjunctiveQuery, Term, Variable}
 import jointree.Hypergraph
 import org.apache.arrow.dataset.scanner.ScanOptions
 import org.apache.arrow.vector.util.Text

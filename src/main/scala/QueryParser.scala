@@ -1,11 +1,11 @@
-import conjunctive_querry.{Atom, ConjunctiveQuery, Constant, Head, Term, Variable}
+import conjunctive_query.{Atom, ConjunctiveQuery, Constant, Head, Term, Variable}
 
 import scala.util.parsing.combinator.RegexParsers
 import org.apache.arrow.vector.util.Text
 
 /**
  * Regex parser to translates CQ query strings to actual [[ConjunctiveQuery]]
- * @param loaded_datasets name-path container for the saved csv files that the conjunctive querry can look up with
+ * @param loaded_datasets name-path container for the saved csv files that the conjunctive query can look up with
  * @note loosely inspired by https://github.com/scala/scala-parser-combinators/blob/main/docs/Getting_Started.md
  */
 class QueryParser(loaded_datasets : Map[String, String]) extends RegexParsers {
@@ -30,7 +30,7 @@ class QueryParser(loaded_datasets : Map[String, String]) extends RegexParsers {
   private def bodyParser: Parser[Set[Atom]] = rep1sep(atomParser, ",") <~ "." ^^ (atoms => atoms.toSet)
 
   /**
-   * Conjunctive Querry string parser
+   * Conjunctive Query string parser
    * @param input [[String]] in correct CQ notation
    * @return correctly corresponding [[ConjunctiveQuery]]
    * @throws ArithmeticException string is not in the correct CQ notation and thus not recognizable

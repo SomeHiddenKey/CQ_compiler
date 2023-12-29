@@ -1,4 +1,4 @@
-import conjunctive_querry.{Atom, ConjunctiveQuery, Constant, Head, Term, Variable}
+import conjunctive_query.{Atom, ConjunctiveQuery, Constant, Head, Term, Variable}
 import jointree.Node
 import org.apache.arrow.dataset.file.FileSystemDatasetFactory
 import org.apache.arrow.dataset.file.FileFormat

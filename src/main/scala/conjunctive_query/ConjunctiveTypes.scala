@@ -1,4 +1,4 @@
-package conjunctive_querry
+package conjunctive_query
 
 import org.apache.arrow.vector.util.Text
 

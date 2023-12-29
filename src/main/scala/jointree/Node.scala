@@ -1,6 +1,6 @@
 package jointree
 
-import conjunctive_querry.Atom
+import conjunctive_query.Atom
 
 /**
  * Node of [[Hypergraph]] that represents an [[Atom]] in the jointree

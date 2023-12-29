@@ -681,7 +681,7 @@ beer_id,brew_id,beer,abv,ibu,ounces,style,style2
 912,45,Oasis,0.072,93,16,Extra Special / Strong Bitter (ESB),NA
 913,495,Newburyport Pale Ale,0.055,NA,12,American Pale Ale (APA),American Pale Ale (APA)
 914,495,Plum Island Belgian White,0.054,NA,12,Witbier,NA
-915,495,Green conjunctive_querry.Head IPA,0.072,NA,12,American IPA,American IPA
+915,495,Green Head IPA,0.072,NA,12,American IPA,American IPA
 916,80,Abominable Winter Ale (2012),0.073,70,16,American Strong Ale,NA
 917,494,Becky's Black Cat Porter,0.07,55,16,American Porter,NA
 918,494,Frankenlou's IPA,0.07,105,16,American IPA,American IPA
@@ -805,7 +805,7 @@ beer_id,brew_id,beer,abv,ibu,ounces,style,style2
 1039,473,Underachiever,0.05,NA,16,American Adjunct Lager,NA
 1040,74,Hobnob B & B Pale Ale,0.065,NA,12,American Pale Ale (APA),American Pale Ale (APA)
 1041,74,Testudo,0.045,NA,12,BiÃ¨re de Garde,NA
-1042,74,conjunctive_querry.Atom Smasher,0.077,23,12,MÃ¤rzen / Oktoberfest,NA
+1042,74,Atom Smasher,0.077,23,12,MÃ¤rzen / Oktoberfest,NA
 1043,307,North Fork Lager,0.044,NA,12,American Pale Lager,NA
 1044,10,Big Red Coq,0.06,NA,16,American Amber / Red Ale,American Amber / Red Ale
 1045,424,Wynkoop Pumpkin Ale,0.055,NA,12,Pumpkin Ale,NA
@@ -1187,7 +1187,7 @@ beer_id,brew_id,beer,abv,ibu,ounces,style,style2
 1434,335,Wood Chipper India Pale Ale,0.067,70,12,American IPA,American IPA
 1435,335,Stone's Throw IPA,0.045,19,12,Scottish Ale,NA
 1436,408,Pub Beer,0.05,NA,12,American Pale Lager,NA
-1437,310,conjunctive_querry.Atom Splitter Pale Ale,0.05,NA,12,American Pale Ale (APA),American Pale Ale (APA)
+1437,310,Atom Splitter Pale Ale,0.05,NA,12,American Pale Ale (APA),American Pale Ale (APA)
 1438,190,Presidential Pils,0.048,NA,12,Czech Pilsener,NA
 1439,222,Boat Beer,0.042,35,12,American IPA,American IPA
 1440,290,Hale's Pale American Ale,0.047,NA,12,American Pale Ale (APA),American Pale Ale (APA)
@@ -1265,7 +1265,7 @@ beer_id,brew_id,beer,abv,ibu,ounces,style,style2
 1515,206,3-Way IPA (2013),0.067,NA,16,American IPA,American IPA
 1516,317,Ace Hole American Pale Ale,0.063,NA,16,American Pale Ale (APA),American Pale Ale (APA)
 1517,107,Pink-I Raspberry IPA,0.068,NA,16,American IPA,American IPA
-1518,355,Devils conjunctive_querry.Head Red Ale,0.073,NA,16,American Amber / Red Ale,American Amber / Red Ale
+1518,355,Devils Head Red Ale,0.073,NA,16,American Amber / Red Ale,American Amber / Red Ale
 1519,392,Saison 88,0.055,30,12,Saison / Farmhouse Ale,NA
 1520,171,Barney Flats Oatmeal Stout,0.057,13,12,Oatmeal Stout,NA
 1521,264,Modus Hoperandi,0.068,65,12,American IPA,American IPA
@@ -1819,7 +1819,7 @@ beer_id,brew_id,beer,abv,ibu,ounces,style,style2
 2086,10,W.I.P.A Snappa,0.053,NA,16,Belgian IPA,NA
 2087,225,Blood Orange Wit,0.05,16,16,Witbier,NA
 2088,224,Hop Stalker Fresh Hop IPA,0.07,80,16,American IPA,American IPA
-2089,224,Trail conjunctive_querry.Head,0.063,55,12,American Pale Ale (APA),American Pale Ale (APA)
+2089,224,Trail Head,0.063,55,12,American Pale Ale (APA),American Pale Ale (APA)
 2090,46,Bengali,0.065,62,24,American IPA,American IPA
 2091,10,Mela,0.062,NA,16,Belgian Dark Ale,NA
 2092,10,BRIPA,0.062,NA,16,Belgian IPA,NA
@@ -2081,7 +2081,7 @@ beer_id,brew_id,beer,abv,ibu,ounces,style,style2
 2358,134,Minhas Light (2012),0.04,NA,12,Light Lager,NA
 2359,134,Huber Bock (2014),0.054,NA,16,Bock,NA
 2360,135,Morning Wood Wheat (Current),0.059,14,12,American Pale Wheat Ale,American Pale Wheat Ale
-2361,134,Axe conjunctive_querry.Head Malt Liquor,0.099,NA,24,American Malt Liquor,NA
+2361,134,Axe Head Malt Liquor,0.099,NA,24,American Malt Liquor,NA
 2362,133,2014 IPA Cicada Series,0.075,72,16,American IPA,American IPA
 2363,92,Hop Ryot,0.065,NA,12,American IPA,American IPA
 2364,132,Royal Lager,,NA,16,American Pale Lager,NA
