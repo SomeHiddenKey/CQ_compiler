@@ -10,9 +10,6 @@ import scala.collection.mutable.ListBuffer
  * @param body list of atoms in the body of the query
  */
 class ConjunctiveQuery(val head : Head,  val body : Set[Atom]):
-  override def toString : String =
-    val bodyString : String = body.mkString(", ")
-    s"$head :- $bodyString."
 
   /**
    * returns the jointree of the Conjunctive Query if it is acyclic

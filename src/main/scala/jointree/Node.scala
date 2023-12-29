@@ -14,6 +14,4 @@ class Node(val atom: Atom){
   def setParent(node : Node): Boolean =
     parent = Some(node)
     node.children.add(this)
-
-  def getParent: Option[Node] = parent
 }

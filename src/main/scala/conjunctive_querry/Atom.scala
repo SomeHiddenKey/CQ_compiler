@@ -10,11 +10,3 @@ class Atom(val relationName : String, val terms : List[Term], val dataset : Opti
   val uniqueTerms: scala.collection.mutable.Set[String] = scala.collection.mutable.Set( terms.collect {
     case v : Variable => v.name
   } :_* )
-
-  override def toString: String =
-    var string: String = ""
-    terms.foreach {
-      case c: Constant[apacheType] => string = string + c.value + ", "
-      case v: Variable => string = string + v.name + ", "
-    }
-    s"$relationName($string)"

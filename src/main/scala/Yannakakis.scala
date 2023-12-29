@@ -191,7 +191,7 @@ object Yannakakis {
     (result, head.terms.filter(el => res.contains(el)))
 
   /**
-   * Computer the Conjunctive Query evaluation for acyclic queries
+   * Compute the Conjunctive Query evaluation for acyclic queries
    * @param c given query to evaluate
    * @return List of values to return, null if it's cyclic, an empty list if the boolean function returns false and a list with an empty row if the boolean function returns true
    */
