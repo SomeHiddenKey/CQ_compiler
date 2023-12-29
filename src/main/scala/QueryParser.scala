@@ -1,6 +1,13 @@
+import conjunctive_querry.{Atom, ConjunctiveQuery, Constant, Head, Term, Variable}
+
 import scala.util.parsing.combinator.RegexParsers
 import org.apache.arrow.vector.util.Text
 
+/**
+ * Regex parser to translates CQ query strings to actual [[ConjunctiveQuery]]
+ * @param loaded_datasets name-path container for the saved csv files that the conjunctive querry can look up with
+ * @note loosely inspired by https://github.com/scala/scala-parser-combinators/blob/main/docs/Getting_Started.md
+ */
 class QueryParser(loaded_datasets : Map[String, String]) extends RegexParsers {
   private def atomParser: Parser[Atom] = relationNameParser ~ "(" ~ termParser ~ ")" ^^ {
     case head_name ~ _ ~ b ~ _ =>
@@ -22,6 +29,12 @@ class QueryParser(loaded_datasets : Map[String, String]) extends RegexParsers {
   private def headParser: Parser[Head] = atomParser <~ ":-" ^^ (atom => new Head(atom.relationName, atom.terms))
   private def bodyParser: Parser[Set[Atom]] = rep1sep(atomParser, ",") <~ "." ^^ (atoms => atoms.toSet)
 
+  /**
+   * Conjunctive Querry string parser
+   * @param input [[String]] in correct CQ notation
+   * @return correctly corresponding [[ConjunctiveQuery]]
+   * @throws ArithmeticException string is not in the correct CQ notation and thus not recognizable
+   */
   def apply(input: String): ConjunctiveQuery = {
     parseAll(queryParser, input) match {
       case Success(matched, _) => matched
@@ -29,17 +42,4 @@ class QueryParser(loaded_datasets : Map[String, String]) extends RegexParsers {
       case Error(msg, _) => throw new ArithmeticException(msg)
     }
   }
-
-  def test(): Unit = {
-    val input = "Answer(uu) :- Beers(Orval, 1.4, y), Location(1, 'h#i--er', 'hie\"r en daar')."
-    val result = parseAll(queryParser, input)
-
-    result match {
-      case Success(matched, _) => println(matched)
-      case Failure(msg, _) => println(s"Parsing failed: $msg")
-      case Error(msg, _) => println(s"Error: $msg")
-    }
-  }
-
-  //loosely inspired by https://github.com/scala/scala-parser-combinators/blob/main/docs/Getting_Started.md
 }

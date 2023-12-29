@@ -1,5 +1,7 @@
 import Runner.{listFilesInDirectory, read}
 import Yannakakis.{YannakakisEvalBoolean, apply}
+import conjunctive_querry.ConjunctiveQuery
+import jointree.Hypergraph
 import org.apache.arrow.dataset.scanner.ScanOptions
 import org.scalatest.funsuite.AnyFunSuite
 
